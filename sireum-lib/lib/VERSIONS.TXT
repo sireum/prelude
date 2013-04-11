@@ -1,0 +1,11 @@
+ANTLR 3.4
+Apfloat 1.6.3
+Apache Commons Lang 3.1
+Guava 13.0.1
+JGraphT 0.8.3
+JUnit 4.10
+ScalaTest 1.8 for Scala 2.10.0-RC1
+StringTemplate 4.0.6
+XMLPull 1.1.3.1
+XPP3 Min 1.1.4c
+XStream 1.4.3
