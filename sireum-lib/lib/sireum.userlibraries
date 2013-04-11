@@ -24,6 +24,9 @@
     </library>
     <library name="JUnit" systemlibrary="false">
         <archive path="/sireum-lib/lib/junit.jar" source="/sireum-lib/lib/junit-src.zip"/>
+        <archive path="/sireum-lib/lib/fest-assert-core.jar" source="/sireum-lib/lib/fest-assert-core-src.zip"/>
+        <archive path="/sireum-lib/lib/fest-util.jar" source="/sireum-lib/lib/fest-util-src.zip"/>
+        <archive path="/sireum-lib/lib/xmlunit.jar" source="/sireum-lib/lib/xmlunit-src.zip"/>
     </library>
     <library name="ScalaTest" systemlibrary="false">
         <archive path="/sireum-lib/lib/scalatest.jar" source="/sireum-lib/lib/scalatest-src.zip"/>
