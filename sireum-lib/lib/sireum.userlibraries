@@ -7,7 +7,7 @@
         <archive path="/sireum-lib/lib/antlr4-runtime.jar" source="/sireum-lib/lib/antlr4-runtime-src.zip"/>
     </library>
     <library name="Apache Commons Lang v3" systemlibrary="false">
-        <archive path="/sireum-lib/lib/commons-lang3.jar" source="/sireum-lib/lib/commons-lang3-src.zip"/>
+        <archive javadoc="http://commons.apache.org/proper/commons-lang/javadocs/api-3.1/" path="/sireum-lib/lib/commons-lang3.jar" source="/sireum-lib/lib/commons-lang3-src.zip"/>
     </library>
     <library name="Apfloat" systemlibrary="false">
         <archive path="/sireum-lib/lib/apfloat.jar" source="/sireum-lib/lib/apfloat-src.zip"/>
@@ -16,7 +16,7 @@
         <archive path="/sireum-lib/lib/automaton.jar" source="/sireum-lib/lib/automaton-src.zip"/>
     </library>
     <library name="Guava" systemlibrary="false">
-        <archive path="/sireum-lib/lib/guava.jar" source="/sireum-lib/lib/guava-src.zip"/>
+        <archive javadoc="http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/" path="/sireum-lib/lib/guava.jar" source="/sireum-lib/lib/guava-src.zip"/>
         <archive path="/sireum-lib/lib/jsr305.jar"/>
     </library>
     <library name="JGraphT" systemlibrary="false">
@@ -28,11 +28,11 @@
         <archive path="/sireum-lib/lib/fest-util.jar" source="/sireum-lib/lib/fest-util-src.zip"/>
         <archive path="/sireum-lib/lib/xmlunit.jar" source="/sireum-lib/lib/xmlunit-src.zip"/>
     </library>
-    <library name="ScalaTest" systemlibrary="false">
-        <archive path="/sireum-lib/lib/scalatest.jar" source="/sireum-lib/lib/scalatest-src.zip"/>
-    </library>
     <library name="ScalaLogging for SLF4J" systemlibrary="false">
         <archive path="/sireum-lib/lib/scalalogging-slf4j.jar" source="/sireum-lib/lib/scalalogging-slf4j-src.zip"/>
+    </library>
+    <library name="ScalaTest" systemlibrary="false">
+        <archive path="/sireum-lib/lib/scalatest.jar" source="/sireum-lib/lib/scalatest-src.zip"/>
     </library>
     <library name="SLF4J" systemlibrary="false">
         <archive path="/sireum-lib/lib/slf4j-api.jar" source="/sireum-lib/lib/slf4j-api-src.zip"/>
@@ -44,7 +44,7 @@
     <library name="XStream" systemlibrary="false">
         <archive path="/sireum-lib/lib/xmlpull.jar"/>
         <archive path="/sireum-lib/lib/xpp3_min.jar" source="/sireum-lib/lib/xpp3_min-src.zip"/>
-        <archive path="/sireum-lib/lib/xstream.jar" source="/sireum-lib/lib/xstream-src.zip"/>
+        <archive javadoc="http://xstream.codehaus.org/javadoc/" path="/sireum-lib/lib/xstream.jar" source="/sireum-lib/lib/xstream-src.zip"/>
         <archive path="/sireum-lib/lib/jettison.jar" source="/sireum-lib/lib/jettison-src.zip"/>
     </library>
 </eclipse-userlibraries>
