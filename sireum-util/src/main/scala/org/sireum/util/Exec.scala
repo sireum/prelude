@@ -28,11 +28,18 @@ class Exec {
   import scala.actors._
   import scala.actors.Actor._
 
-  val env = {
-    import scala.collection.JavaConversions._
-    val m = mmapEmpty[String, String]
-    m ++= System.getenv()
-  }
+  private var _env : Option[MMap[String, String]] = None
+
+  def env =
+    _env match {
+      case Some(m) => m
+      case _ =>
+        import scala.collection.JavaConversions._
+        val m = mmapEmpty[String, String]
+        m ++= System.getenv()
+        _env = Some(m)
+        m
+    }
 
   def run(waitTime : Long, args : Seq[String], input : Option[String], dir : Option[File] = None) : Result = {
     singleReader(self, waitTime, dir) ! (args, input)
@@ -62,14 +69,16 @@ class Exec {
         if (dir.isDefined)
           processBuilder.directory(dir.get)
         processBuilder.redirectErrorStream(true)
-        val pbEnv = processBuilder.environment()
-        pbEnv.clear 
-        
-        {
-          import scala.collection.JavaConversions._
-          pbEnv.putAll(env)
+
+        _env match {
+          case Some(m) =>
+            import scala.collection.JavaConversions._
+            val pbEnv = processBuilder.environment()
+            pbEnv.clear
+            pbEnv.putAll(env)
+          case _ =>
         }
-        
+
         try {
           val proc = processBuilder.start()
           if (in.isDefined) {
