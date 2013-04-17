@@ -28,7 +28,7 @@ class Exec {
   import scala.actors._
   import scala.actors.Actor._
 
-  var env = System.getenv();
+  val env = System.getenv();
   
   def run(waitTime : Long, args : Seq[String], input : Option[String], dir : Option[File] = None) : Result = {
     singleReader(self, waitTime, dir) ! (args, input)
