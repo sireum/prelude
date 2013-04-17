@@ -28,6 +28,8 @@ class Exec {
   import scala.actors._
   import scala.actors.Actor._
 
+  var env = System.getenv();
+  
   def run(waitTime : Long, args : Seq[String], input : Option[String], dir : Option[File] = None) : Result = {
     singleReader(self, waitTime, dir) ! (args, input)
 
@@ -56,6 +58,9 @@ class Exec {
         if (dir.isDefined)
           processBuilder.directory(dir.get)
         processBuilder.redirectErrorStream(true)
+        val pbEnv = processBuilder.environment()
+        pbEnv.clear()
+        pbEnv.putAll(env)
         try {
           val proc = processBuilder.start()
           if (in.isDefined) {
