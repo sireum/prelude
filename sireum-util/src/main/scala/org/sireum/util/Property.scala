@@ -108,6 +108,7 @@ trait PropertyProviderContext[T <: PropertyProvider] {
   private var _context : T = _
   def context(pp : T) : this.type = { _context = pp; this }
   def context : T = _context
+  def make(pp : T) : PropertyProviderContext[T]
 }
 
 /**

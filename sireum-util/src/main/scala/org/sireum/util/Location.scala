@@ -15,7 +15,7 @@ trait Location
 
 object Location {
   val locPropKey = "util.loc"
-    
+
   trait XStreamer {
     self : org.sireum.util.XStreamer =>
     self.alias("loc.file", classOf[FileLocation.FileLocationWithAtImpl[_]])
@@ -61,6 +61,7 @@ object FileLocation {
   private[util] final case class FileLocationWithAtImpl[T <: PropertyProvider](
     var fileUri : FileResourceUri = null)
       extends FileLocationWithAt[T] with PropertyProviderContext[T] {
+    def make(pp : T) = FileLocationWithAtImpl[T](fileUri).context(pp)
     def at(fileUri : FileResourceUri) : T = {
       this.fileUri = fileUri
       context
@@ -98,6 +99,7 @@ object OffsetLocation {
   private[util] final case class OffsetLocationWithAtImpl[T <: PropertyProvider](
     var offset : Int = 0, var length : Int = 0)
       extends OffsetLocationWithAt[T] with PropertyProviderContext[T] {
+    def make(pp : T) = OffsetLocationWithAtImpl[T](offset, length).context(pp)
     def at(offset : Int, length : Int) = {
       this.offset = offset
       this.length = length
@@ -136,6 +138,7 @@ object LineColumnLocation {
   private[util] final case class LineColumnLocationWithAtImpl[T <: PropertyProvider](
     var line : Int = 0, var column : Int = 0)
       extends LineColumnLocationWithAt[T] with PropertyProviderContext[T] {
+    def make(pp : T) = LineColumnLocationWithAtImpl[T](line, column).context(pp)
     def at(line : Int, column : Int) = {
       this.line = line
       this.column = column
@@ -179,6 +182,9 @@ object BeginEndLineColumnLocation {
     var lineBegin : Int = 0, var columnBegin : Int = 0,
     var lineEnd : Int = 0, var columnEnd : Int = 0)
       extends BeginEndLineColumnLocationWithAt[T] with PropertyProviderContext[T] {
+    def make(pp : T) =
+      BeginEndLineColumnLocationWithAtImpl[T](lineBegin, columnBegin, lineEnd,
+        columnEnd).context(pp)
     def at(lineBegin : Int, columnBegin : Int, lineEnd : Int,
            columnEnd : Int) = {
       this.lineBegin = lineBegin
@@ -217,6 +223,8 @@ object FileLineColumnLocation {
   private[util] final case class FileLineColumnLocationWithAtImpl[T <: PropertyProvider](
     var fileUri : FileResourceUri = null, var line : Int = 0, var column : Int = 0)
       extends FileLineColumnLocationWithAt[T] with PropertyProviderContext[T] {
+    def make(pp : T) =
+      FileLineColumnLocationWithAtImpl[T](fileUri, line, column).context(pp)
     def at(fileUri : Option[FileResourceUri], line : Int, column : Int) =
       if (fileUri.isDefined) at(fileUri.get, line, column)
       else at(line, column)
@@ -264,6 +272,9 @@ object SourceLocation {
     var fileUri : FileResourceUri = null, var lineBegin : Int = 0,
     var columnBegin : Int = 0, var lineEnd : Int = 0, var columnEnd : Int = 0)
       extends SourceLocationWithAt[T] with PropertyProviderContext[T] {
+    def make(pp : T) =
+      SourceLocationWithAtImpl[T](fileUri, lineBegin, columnBegin, lineEnd,
+        columnEnd).context(pp)
     def at(fileUri : Option[FileResourceUri], lineBegin : Int, columnBegin : Int,
            lineEnd : Int, columnEnd : Int) =
       if (fileUri.isDefined)

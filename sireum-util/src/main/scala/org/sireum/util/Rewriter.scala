@@ -45,24 +45,26 @@ object Rewriter {
     }
 
   def build[T](f : RewriteFunction,
-               mode : TraversalMode.Type = TraversalMode.TOP_DOWN) =
+               mode : TraversalMode.Type = TraversalMode.TOP_DOWN,
+               copyPropertyMap : Boolean = false) =
     { x : T =>
       mode match {
         case TraversalMode.TOP_DOWN =>
-          rewrite(Some({ _ => f }), None)(x)
+          rewrite(Some({ _ => f }), None, copyPropertyMap)(x)
         case TraversalMode.BOTTOM_UP =>
-          rewrite(None, Some({ _ => f }))(x)
+          rewrite(None, Some({ _ => f }), copyPropertyMap)(x)
       }
     }
 
   def buildEnd[T](f : RewriteFunction, g : RewriteFunction,
-                  mode : TraversalMode.Type = TraversalMode.TOP_DOWN) =
+                  mode : TraversalMode.Type = TraversalMode.TOP_DOWN,
+                  copyPropertyMap : Boolean = false) =
     { x : T =>
       mode match {
         case TraversalMode.TOP_DOWN =>
-          rewrite(Some({ _ => f }), Some({ _ => g }))(x)
+          rewrite(Some({ _ => f }), Some({ _ => g }), copyPropertyMap)(x)
         case TraversalMode.BOTTOM_UP =>
-          rewrite(None, Some({ _ => all(f, g) }))(x)
+          rewrite(None, Some({ _ => all(f, g) }), copyPropertyMap)(x)
       }
     }
 
@@ -130,16 +132,32 @@ object Rewriter {
   }
 
   private[util] class RProductStackElement(
-    value : Product, alwaysCopy : Boolean)
+    value : Product, copyPropertyMap : Boolean, alwaysCopy : Boolean)
       extends ProductStackElement(value : Product)
       with RewritableStackElement[Product] {
     val newChildren = new Array[Object](value.productArity)
     var isDirty = alwaysCopy
 
     def makeWithNewChildren =
-      if (isDirty)
-        ProductUtil.make(value.getClass, newChildren : _*)
-      else value
+      if (isDirty) {
+        val result = ProductUtil.make(value.getClass, newChildren : _*)
+        if (copyPropertyMap)
+          result match {
+            case pp : PropertyProvider =>
+              val pm = pp.propertyMap
+              for ((k, v) <- value.asInstanceOf[PropertyProvider].propertyMap) {
+                v match {
+                  case v : PropertyProviderContext[_] =>
+                    pm(k) = v.
+                      asInstanceOf[PropertyProviderContext[PropertyProvider]].
+                      make(pp)
+                  case _ => pm(k) = v
+                }
+              }
+          }
+
+        result
+      } else value
   }
 
   private[util] class RVisitableStackElement(
@@ -155,6 +173,7 @@ object Rewriter {
 
   def rewrite[T](fnPre : Option[VisitorStackProvider => RewriteFunction],
                  fnPost : Option[VisitorStackProvider => RewriteFunction],
+                 copyPropertyMap : Boolean,
                  alwaysCopy : Boolean = false)(o : T) : T = {
 
     var _stack = ilistEmpty[VisitorStackElementRoot with RewritableStackElement[_]]
@@ -200,7 +219,7 @@ object Rewriter {
               case t : scala.collection.Traversable[_] =>
                 _stack = new RTraversableStackElement(t, alwaysCopy, rewriter _) :: _stack
               case p : Product =>
-                _stack = new RProductStackElement(p, alwaysCopy) :: _stack
+                _stack = new RProductStackElement(p, copyPropertyMap, alwaysCopy) :: _stack
               case v : Rewritable =>
                 _stack = new RVisitableStackElement(v, alwaysCopy) :: _stack
               case _ =>
