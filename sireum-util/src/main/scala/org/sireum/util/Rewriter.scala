@@ -154,6 +154,7 @@ object Rewriter {
                   case _ => pm(k) = v
                 }
               }
+            case _ =>
           }
 
         result
