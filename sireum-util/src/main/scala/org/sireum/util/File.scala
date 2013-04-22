@@ -12,6 +12,8 @@ import java.net.URL
 import java.net.URI
 import java.io.File
 import java.io.FilenameFilter
+import java.io.LineNumberReader
+import java.io.InputStreamReader
 
 /**
  * @author <a href="mailto:robby@k-state.edu">Robby</a>
@@ -58,5 +60,23 @@ object FileUtil {
     val stream = uri.toURL.openStream
     stream.read(buffer)
     (new String(buffer), file.getAbsoluteFile.toURI.toASCIIString)
+  }
+  
+  def readFileLines(fileUri : FileResourceUri) : (ISeq[String], FileResourceUri) = {
+    val uri = new URI(fileUri)
+    val file = new File(uri)
+
+    assert(file.exists)
+    
+    val lineSep = System.lineSeparator
+    val stream = uri.toURL.openStream
+    val lnr = new LineNumberReader(new InputStreamReader(stream))
+    var line = lnr.readLine
+    var result = ivectorEmpty[String]
+    while (line != null) {
+      result :+= line
+      line = lnr.readLine
+    }
+    (result, file.getAbsoluteFile.toURI.toASCIIString)
   }
 }
