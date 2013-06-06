@@ -85,10 +85,14 @@ object Reflection {
     if (companionSymbol.isModule) {
       val moduleSymbol = companionSymbol.asModule
       val moduleMirror = m.reflectModule(moduleSymbol)
-      Some((companionSymbol, moduleMirror.instance,
-        if (processAnnotations)
-          moduleSymbol.annotations.toVector.map(annotation(_, m))
-        else ivectorEmpty))
+      try
+        Some((companionSymbol, moduleMirror.instance,
+          if (processAnnotations)
+            moduleSymbol.annotations.toVector.map(annotation(_, m))
+          else ivectorEmpty))
+      catch {
+        case e : ClassNotFoundException => None
+      }
     } else None
   }
 
