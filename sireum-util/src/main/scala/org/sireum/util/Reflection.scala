@@ -36,6 +36,13 @@ object Reflection {
   final val bigIntType = typeOf[BigInt]
   final val integerType = typeOf[org.sireum.util.math.Integer]
   final val stringType = typeOf[String]
+  
+  def typeCheck(t : Tree, m : Mirror = mirror) : Tree = {
+    import scala.tools.reflect.ToolBox
+
+    val tb = m.mkToolBox()
+    tb.typeCheck(t)
+  }
 
   def eval[T](expr : String, m : Mirror = mirror) = {
     import scala.tools.reflect.ToolBox
