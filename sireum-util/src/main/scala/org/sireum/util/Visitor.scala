@@ -9,6 +9,7 @@ http://www.eclipse.org/legal/epl-v10.html
 package org.sireum.util
 
 import scala.annotation.tailrec
+import com.google.common.base.Optional
 
 /**
  * @author <a href="mailto:robby@k-state.edu">Robby</a>
@@ -170,6 +171,9 @@ object Visitor {
             _stack = new VisitableStackElement(v) :: _stack
           case i : java.lang.Iterable[_] =>
             _stack = new IterableStackElement(i) :: _stack
+          case o : Optional[_] =>
+            _stack = new ProductStackElement(
+              if (o.isPresent) Some(o.get) else None) :: _stack
           case _ =>
         }
       }
@@ -178,8 +182,8 @@ object Visitor {
       def peek = _stack.head
 
       def pop {
-        if (hasPost && g.isDefinedAt(peek))
-          g(peek)
+        if (hasPost && g.isDefinedAt(peek.value))
+          g(peek.value)
         _stack = _stack.tail
       }
 
