@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry kind="src" path="src/main/scala"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="lib/antlr-runtime.jar" sourcepath="lib/antlr-runtime-src.zip">
 		<attributes>
@@ -7,69 +8,70 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/antlr4-runtime.jar" sourcepath="lib/antlr4-runtime-src.zip">
-    <attributes>
-      <attribute name="javadoc_location" value="http://www.antlr4.org/api/Java/"/>
-    </attributes>
-  </classpathentry>
+		<attributes>
+			<attribute name="javadoc_location" value="http://www.antlr4.org/api/Java/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/apfloat.jar" sourcepath="lib/apfloat-src.zip">
-    <attributes>
-      <attribute name="javadoc_location" value="http://www.apfloat.org/apfloat_java/docs/"/>
-    </attributes>
-  </classpathentry>
+		<attributes>
+			<attribute name="javadoc_location" value="http://www.apfloat.org/apfloat_java/docs/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/automaton.jar" sourcepath="lib/automaton-src.zip">
-    <attributes>
-      <attribute name="javadoc_location" value="http://www.brics.dk/automaton/doc/"/>
-    </attributes>
-  </classpathentry>
+		<attributes>
+			<attribute name="javadoc_location" value="http://www.brics.dk/automaton/doc/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/commons-lang3.jar" sourcepath="lib/commons-lang3-src.zip">
-    <attributes>
-      <attribute name="javadoc_location" value="http://commons.apache.org/proper/commons-lang/javadocs/api-3.1/"/>
-    </attributes>
-  </classpathentry>
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/proper/commons-lang/javadocs/api-3.1/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/fest-assert-core.jar" sourcepath="lib/fest-assert-core-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/fest-util.jar" sourcepath="lib/fest-util-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/guava.jar" sourcepath="lib/guava-src.zip">
-    <attributes>
-      <attribute name="javadoc_location" value="http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/"/>
-    </attributes>
-  </classpathentry>
+		<attributes>
+			<attribute name="javadoc_location" value="http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/"/>
+		</attributes>
+	</classpathentry>
+  <classpathentry exported="true" kind="lib" path="lib/hamcrest-core.jar" sourcepath="lib/hamcrest-core-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/jettison.jar" sourcepath="lib/jettison-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/jgrapht.jar" sourcepath="lib/jgrapht-src.zip">
-    <attributes>
-      <attribute name="javadoc_location" value="http://jgrapht.org/javadoc/"/>
-    </attributes>
-  </classpathentry>
+		<attributes>
+			<attribute name="javadoc_location" value="http://jgrapht.org/javadoc/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/jsr305.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/junit.jar" sourcepath="lib/junit-src.zip">
-    <attributes>
-      <attribute name="javadoc_location" value="http://junit.sourceforge.net/javadoc/"/>
-    </attributes>
-  </classpathentry>
+		<attributes>
+			<attribute name="javadoc_location" value="http://junit.sourceforge.net/javadoc/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/scalalogging-slf4j.jar" sourcepath="lib/scalalogging-slf4j-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/scalatest.jar" sourcepath="lib/scalatest-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/slf4j-api.jar" sourcepath="lib/slf4j-api-src.zip">
-    <attributes>
-      <attribute name="javadoc_location" value="http://www.slf4j.org/apidocs/"/>
-    </attributes>
-  </classpathentry>
+		<attributes>
+			<attribute name="javadoc_location" value="http://www.slf4j.org/apidocs/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/slf4j-jdk14.jar" sourcepath="lib/slf4j-jdk14-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/string-template.jar" sourcepath="lib/string-template-src.zip">
-    <attributes>
-      <attribute name="javadoc_location" value="http://www.stringtemplate.org/api/"/>
-    </attributes>
-  </classpathentry>
+		<attributes>
+			<attribute name="javadoc_location" value="http://www.stringtemplate.org/api/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/xmlpull.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xmlunit.jar" sourcepath="lib/xmlunit-src.zip">
-    <attributes>
-      <attribute name="javadoc_location" value="http://xmlunit.sourceforge.net/api/"/>
-    </attributes>
-  </classpathentry>
+		<attributes>
+			<attribute name="javadoc_location" value="http://xmlunit.sourceforge.net/api/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/xpp3_min.jar" sourcepath="lib/xpp3_min-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/xstream.jar" sourcepath="lib/xstream-src.zip">
-    <attributes>
-      <attribute name="javadoc_location" value="http://xstream.codehaus.org/javadoc/"/>
-    </attributes>
-  </classpathentry>
+		<attributes>
+			<attribute name="javadoc_location" value="http://xstream.codehaus.org/javadoc/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="elib/scala-actors.jar" sourcepath="elib/scala-actors-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="elib/scala-compiler.jar" sourcepath="elib/scala-compiler-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="elib/scala-library.jar" sourcepath="elib/scala-library-src.zip"/>
