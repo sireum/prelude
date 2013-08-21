@@ -173,7 +173,7 @@ object XStreamer {
     def marshal(value : Object, writer : HierarchicalStreamWriter,
                 context : MarshallingContext) {
       value match {
-        case Some(o) =>
+        case Some(o) => 
           implicit val iw = writer
           writer.addAttribute(classAttributeName,
             ctx.getName(o.getClass))
@@ -442,17 +442,20 @@ object XStreamer {
   object TraversableConverter {
     final val typeAttributeName = "ttype"
     final val ilistType = "ilist"
+    final val isetType = "iset"      
     final val ivectorType = "ivector"
     final val marrayType = "marray"
-
+      
     val mconverter : Any --> String = {
       case t : IList[_]   => ilistType
+      case t : ISet[_]    => isetType
       case t : IVector[_] => ivectorType
       case t : MArray[_]  => marrayType
     }
 
-    val uconverter : String --> CSeq[Any] = {
+    val uconverter : String --> Traversable[Any] = {
       case `ilistType`   => ilistEmpty[Any]
+      case `isetType`    => isetEmpty[Any]
       case `ivectorType` => ivectorEmpty[Any]
       case `marrayType`  => marrayEmpty[Any]
     }
@@ -466,9 +469,11 @@ object XStreamer {
 
     ctx.traversableConverter = this
 
-    def canConvert(clazz : Class[_]) =
+    def canConvert(clazz : Class[_]) = {
       classOf[Traversable[_]].isAssignableFrom(clazz) &&
-        !classOf[scala.collection.Map[_, _]].isAssignableFrom(clazz)
+        !classOf[scala.collection.Map[_, _]].isAssignableFrom(clazz) &&
+        !classOf[scala.collection.immutable.WrappedString].isAssignableFrom(clazz)
+    }
 
     def marshal(value : Object, writer : HierarchicalStreamWriter,
                 context : MarshallingContext) {
@@ -487,12 +492,17 @@ object XStreamer {
       else {
         implicit val ir = reader
         implicit val ic = context
-        var r = uconverter(am(typeAttributeName))
-        r match {
+        uconverter(am(typeAttributeName)) match {
           case t : ISeq[Any] =>
+            var t1 = t.asInstanceOf[ISeq[Any]]
             while (reader.hasMoreChildren)
-              r :+= unnodef(ctx.unmarshal(_))
-            r
+              t1 :+= unnodef(ctx.unmarshal(_))
+            t1
+          case t : ISet[Any] =>
+            var t1 = t.asInstanceOf[ISet[Any]]
+            while (reader.hasMoreChildren)
+              t1 += unnodef(ctx.unmarshal(_))
+            t1
           case t : MBuffer[Any] =>
             while (reader.hasMoreChildren)
               t += unnodef(ctx.unmarshal(_))
