@@ -470,9 +470,10 @@ object XStreamer {
     ctx.traversableConverter = this
 
     def canConvert(clazz : Class[_]) = {
-      classOf[Traversable[_]].isAssignableFrom(clazz) &&
-        !classOf[scala.collection.Map[_, _]].isAssignableFrom(clazz) &&
-        !classOf[scala.collection.immutable.WrappedString].isAssignableFrom(clazz)
+      classOf[IList[_]].isAssignableFrom(clazz) ||
+      classOf[ISet[_]].isAssignableFrom(clazz) ||
+      classOf[IVector[_]].isAssignableFrom(clazz) ||
+      classOf[MArray[_]].isAssignableFrom(clazz)
     }
 
     def marshal(value : Object, writer : HierarchicalStreamWriter,
