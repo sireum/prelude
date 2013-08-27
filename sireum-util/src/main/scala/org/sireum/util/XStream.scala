@@ -706,14 +706,10 @@ trait XStreamer {
       })
     xstream.setMode(XStream.NO_REFERENCES)
 
-    for (c <- converters) xstream.registerConverter(c)
-
-    for (c <- singleValueConverters) xstream.registerConverter(c)
-
     for ((a, p) <- packageAliases) xstream.aliasPackage(a, p)
 
     for ((a, c) <- classAliases) xstream.aliasType(a, c)
-
+    
     val ctx = new ConverterContextInit {
       val isXml = mode == Mode.XML
       val isDiet = self.isDiet
@@ -734,6 +730,10 @@ trait XStreamer {
     xstream.registerConverter(new StringConverter)
 
     xstream.registerConverter(new OptionConverter(ctx))
+    
+    for (c <- converters) xstream.registerConverter(c)
+
+    for (c <- singleValueConverters) xstream.registerConverter(c)
 
     xstream
   }
