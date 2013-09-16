@@ -20,13 +20,33 @@ package object debug {
 
   def assert(
     cond : Boolean,
+    msg : Lazy[String]) : Unit = macro assertDebugImpl
+
+  def assert(
+    enableCond : Boolean,
+    cond : Boolean,
     msg : Lazy[String]) : Unit = macro assertImpl
 
-  def assertImpl(c : scala.reflect.macros.Context)(
+  def assertDebugImpl(c : scala.reflect.macros.Context)(
     cond : c.Expr[Boolean], msg : c.Expr[Lazy[String]]) : c.Expr[Unit] = {
     import c.universe._
 
     if (DEBUG)
+      reify {
+        if (!cond.splice)
+          throw new AssertionError(
+            s"Assertion violated: ${msg.splice.value}")
+      }
+    else
+      reify {}
+  }
+
+  def assertImpl(c : scala.reflect.macros.Context)(
+    enableCond : c.Expr[Boolean], cond : c.Expr[Boolean],
+    msg : c.Expr[Lazy[String]]) : c.Expr[Unit] = {
+    import c.universe._
+
+    if (c.eval(c.Expr(c.resetAllAttrs(enableCond.tree))))
       reify {
         if (!cond.splice)
           throw new AssertionError(

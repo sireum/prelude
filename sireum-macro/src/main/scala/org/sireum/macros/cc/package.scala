@@ -13,13 +13,30 @@ package org.sireum.macros
 package object cc {
   import scala.language.experimental.macros
 
+  val INTERNAL = System.getProperty("SIREUM_INTERNAL") match {
+    case "true" => true
+    case _      => false
+  }
+  
+  def it(tt : Unit) = macro itInternalImpl
+  
+  def it(cond : Boolean, tt : Unit) = macro itImpl
+
+  def ite[T](tt : T, ff : T) = macro iteInternalImpl[T]
+    
   def ite[T](cond : Boolean, tt : T, ff : T) = macro iteImpl[T]
+  
+  def iteInternalImpl[T](c : scala.reflect.macros.Context)(
+    tt : c.Expr[T], ff : c.Expr[T]) : c.Expr[T] =
+    if (INTERNAL) tt else ff
+
+  def itInternalImpl(c : scala.reflect.macros.Context)(
+      tt : c.Expr[Unit]) : c.Expr[Unit] =
+    if (INTERNAL) tt else c.universe.reify {}
 
   def iteImpl[T](c : scala.reflect.macros.Context)(
     cond : c.Expr[Boolean], tt : c.Expr[T], ff : c.Expr[T]) : c.Expr[T] =
     if (c.eval(c.Expr(c.resetAllAttrs(cond.tree)))) tt else ff
-
-  def it(cond : Boolean, tt : Unit) = macro itImpl
 
   def itImpl(c : scala.reflect.macros.Context)(
     cond : c.Expr[Boolean], tt : c.Expr[Unit]) : c.Expr[Unit] =
