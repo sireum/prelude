@@ -16,6 +16,11 @@
 			<attribute name="javadoc_location" value="http://www.apfloat.org/apfloat_java/docs/"/>
 		</attributes>
 	</classpathentry>
+  <classpathentry exported="true" kind="lib" path="lib/asm.jar" sourcepath="lib/asm-src.zip">
+    <attributes>
+      <attribute name="javadoc_location" value="http://asm.ow2.org/asm40/javadoc/user/"/>
+    </attributes>
+  </classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/automaton.jar" sourcepath="lib/automaton-src.zip">
 		<attributes>
 			<attribute name="javadoc_location" value="http://www.brics.dk/automaton/doc/"/>
