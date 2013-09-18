@@ -13,7 +13,7 @@ package org.sireum.macros
 package object cc {
   import scala.language.experimental.macros
 
-  val INTERNAL = System.getProperty("SIREUM_INTERNAL") match {
+  val INTERNAL = System.getenv("SIREUM_INTERNAL") match {
     case "true" => true
     case _      => false
   }
