@@ -28,7 +28,7 @@ object Visitor {
     case x : Any =>
       (if (parallel) fs.par else fs).
         map({ f => if (f isDefinedAt x) f(x) else true }).
-        foldLeft(true)((x, y) => x || y)
+        foldLeft(false)((x, y) => x || y)
   }
 
   def atMostOne(fs : ISeq[VisitorFunction],
