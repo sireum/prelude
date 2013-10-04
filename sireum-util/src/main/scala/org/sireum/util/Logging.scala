@@ -11,20 +11,38 @@ package org.sireum.util
 import com.typesafe.scalalogging.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+/**
+ * @author <a href="mailto:robby@k-state.edu">Robby</a>
+ */
 object LoggingUtil {
+  /**
+   * @author <a href="mailto:robby@k-state.edu">Robby</a>
+   */
   object Level extends Enumeration {
     type Type = Value
     val All, Info, Error, Debug, Trace, Off = Value
   }
 
+  /**
+   * @author <a href="mailto:robby@k-state.edu">Robby</a>
+   */
   sealed trait Mode
+  /**
+   * @author <a href="mailto:robby@k-state.edu">Robby</a>
+   */
   object None extends Mode
+  /**
+   * @author <a href="mailto:robby@k-state.edu">Robby</a>
+   */
   object Console extends Mode
+  /**
+   * @author <a href="mailto:robby@k-state.edu">Robby</a>
+   */
   final case class File(uri : FileResourceUri) extends Mode
 
   def logger(o : AnyRef) = Logger(LoggerFactory getLogger o.getClass.getName)
 
-  def setup(o : AnyRef, level : Level.Type = Level.All, mode : Mode) {
+  def setup(o : AnyRef, level : Level.Type = Level.All, mode : Mode) = {
     import java.util.logging.{
       LogManager,
       Handler,
@@ -60,6 +78,7 @@ object LoggingUtil {
         h.setLevel(jlevel)
         jl.addHandler(h)
     }
+    l
   }
 }
 
