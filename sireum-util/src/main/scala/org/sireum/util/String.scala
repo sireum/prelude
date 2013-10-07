@@ -27,4 +27,35 @@ object StringUtil {
     }
     result
   }
+
+  def replace(s : String, offsetReplaces : OffsetReplace*) : String = {
+    var sb = new StringBuilder
+    val ors = offsetReplaces.sortWith({ (or1, or2) =>
+      if (or1.offsetBegin < or2.offsetBegin) {
+        assert(or1.offsetEnd < or2.offsetBegin)
+        true
+      } else false
+    })
+    var i = 0
+    for (or <- ors if i < s.length) {
+      val begin = or.offsetBegin
+      if (begin <= s.length) {
+        sb.append(s.substring(i, begin))
+        sb.append(or.text)
+      }
+      i = or.offsetEnd + 1
+    }
+    if (i < s.length) {
+      sb.append(s.substring(i))
+    }
+    sb.toString
+  }
+
+  /**
+   * @author <a href="mailto:robby@k-state.edu">Robby</a>
+   */
+  final case class OffsetReplace(
+      offsetBegin : Int, offsetEnd : Int, text : String) {
+    require(offsetBegin <= offsetEnd)
+  }
 }
