@@ -45,6 +45,17 @@ object FileUtil {
       }
     result.toList
   }
+  
+  def readFile(r : java.io.Reader) : String = {
+    val buffer = new Array[Char](1024)
+    var n = r.read(buffer)
+    val sb = new StringBuilder
+    while (n != -1) {
+      sb.appendAll(buffer, 0, n)
+      n = r.read(buffer)
+    }
+    sb.toString
+  }
 
   def readFile(fileUri : FileResourceUri) : (String, FileResourceUri) = {
     val uri = new URI(fileUri)
