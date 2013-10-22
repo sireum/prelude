@@ -32,7 +32,7 @@ object StringUtil {
     var sb = new StringBuilder
     val ors = offsetReplaces.sortWith({ (or1, or2) =>
       if (or1.offsetBegin < or2.offsetBegin) {
-        assert(or1.offsetEnd < or2.offsetBegin)
+        assert(or1.offsetBegin + or1.length < or2.offsetBegin + or2.length)
         true
       } else false
     })
@@ -43,7 +43,7 @@ object StringUtil {
         sb.append(s.substring(i, begin))
         sb.append(or.text)
       }
-      i = or.offsetEnd + 1
+      i = or.offsetBegin + or.length
     }
     if (i < s.length) {
       sb.append(s.substring(i))
@@ -55,7 +55,6 @@ object StringUtil {
    * @author <a href="mailto:robby@k-state.edu">Robby</a>
    */
   final case class OffsetReplace(
-      offsetBegin : Int, offsetEnd : Int, text : String) {
-    require(offsetBegin <= offsetEnd)
+      offsetBegin : Int, length : Int, text : String) {
   }
 }
