@@ -16,11 +16,11 @@
 			<attribute name="javadoc_location" value="http://www.apfloat.org/apfloat_java/docs/"/>
 		</attributes>
 	</classpathentry>
-  <classpathentry exported="true" kind="lib" path="lib/asm.jar" sourcepath="lib/asm-src.zip">
-    <attributes>
-      <attribute name="javadoc_location" value="http://asm.ow2.org/asm40/javadoc/user/"/>
-    </attributes>
-  </classpathentry>
+	<classpathentry exported="true" kind="lib" path="lib/asm.jar" sourcepath="lib/asm-src.zip">
+		<attributes>
+			<attribute name="javadoc_location" value="http://asm.ow2.org/asm40/javadoc/user/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/automaton.jar" sourcepath="lib/automaton-src.zip">
 		<attributes>
 			<attribute name="javadoc_location" value="http://www.brics.dk/automaton/doc/"/>
@@ -55,11 +55,6 @@
 	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/scalalogging-slf4j.jar" sourcepath="lib/scalalogging-slf4j-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/scalatest.jar" sourcepath="lib/scalatest-src.zip"/>
-  <classpathentry exported="true" kind="lib" path="lib/scala-arm.jar" sourcepath="lib/scala-arm-src.zip">
-    <attributes>
-      <attribute name="javadoc_location" value="http://jsuereth.com/scala-arm/latest/api/"/>
-    </attributes>
-  </classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/slf4j-api.jar" sourcepath="lib/slf4j-api-src.zip">
 		<attributes>
 			<attribute name="javadoc_location" value="http://www.slf4j.org/apidocs/"/>

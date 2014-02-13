@@ -238,7 +238,7 @@ object Reflection {
   case class CaseClass(
       className : String,
       tipe : Type,
-      annotations : ISeq[Annotation],
+      annotations : ISeq[Reflection.Annotation],
       private[Reflection] var _params : ISeq[CaseClass.Param],
       private[Reflection] var _properties : IMap[Any, Any]) {
     def params = _params
