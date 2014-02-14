@@ -35,8 +35,17 @@ final class Exec {
   def run(waitTime : Long, args : Seq[String], input : Option[String],
           dir : Option[File], extraEnv : (String, String)*) : Exec.Result = {
     import scala.sys.process._
-    val p = Process(args, dir, (env.toSeq ++ extraEnv) : _*).
-      run(new ProcessIO(inputF(input), outputF, outputF))
+    val p = Process({
+      val pb = new java.lang.ProcessBuilder(args : _*)
+      pb.redirectErrorStream(true)
+      dir.foreach(d => pb.directory(d))
+      val m = pb.environment
+      for ((k, v) <- extraEnv) {
+        m.put(k, v)
+      }
+      pb
+    }).run(new ProcessIO(inputF(input), outputF, errorF))
+    
     if (waitTime <= 0) {
       val x = p.exitValue
       Exec.StringResult(sb.toString, x)
@@ -74,6 +83,10 @@ final class Exec {
         n = is.read(buffer)
       }
     } finally is.close
+  }
+
+  def errorF(is : InputStream) {
+    try while (is.read != -1) {} finally is.close
   }
 }
 
