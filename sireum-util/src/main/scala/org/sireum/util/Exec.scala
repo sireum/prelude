@@ -40,7 +40,7 @@ final class Exec {
       pb.redirectErrorStream(true)
       dir.foreach(d => pb.directory(d))
       val m = pb.environment
-      for ((k, v) <- extraEnv) {
+      for ((k, v) <- env ++ extraEnv) {
         m.put(k, v)
       }
       pb
