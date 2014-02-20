@@ -24,6 +24,7 @@ object Location {
     self.alias("loc.linecolumn.end", classOf[BeginEndLineColumnLocation.BeginEndLineColumnLocationWithAtImpl[_]])
     self.alias("loc.file.linecolumn", classOf[FileLineColumnLocation.FileLineColumnLocationWithAtImpl[_]])
     self.alias("loc.source", classOf[SourceLocation.SourceLocationWithAtImpl[_]])
+    self.alias("loc.sourceoffset", classOf[SourceOffsetLocation.SourceOffsetLocationWithAtImpl[_]])
   }
 }
 
@@ -44,8 +45,9 @@ trait FileLocation extends Location {
  */
 object FileLocation {
   import language.implicitConversions
-  implicit def pp2fl[T <: PropertyProvider](pp : T) : FileLocationWithAt[T] =
-    pp.getPropertyOrElseUpdate(Location.locPropKey,
+  implicit def pp2fl[T <: PropertyProvider](pp : T)(
+    implicit locPropKey : String = Location.locPropKey) : FileLocationWithAt[T] =
+    pp.getPropertyOrElseUpdate(locPropKey,
       new FileLocationWithAtImpl[T].context(pp))
 
   implicit object FileLocationPropertyAdapter
@@ -82,8 +84,9 @@ trait OffsetLocation extends Location {
  */
 object OffsetLocation {
   import language.implicitConversions
-  implicit def pp2ol[T <: PropertyProvider](pp : T) : OffsetLocationWithAt[T] =
-    pp.getPropertyOrElseUpdate(Location.locPropKey,
+  implicit def pp2ol[T <: PropertyProvider](pp : T)(
+    implicit locPropKey : String = Location.locPropKey) : OffsetLocationWithAt[T] =
+    pp.getPropertyOrElseUpdate(locPropKey,
       new OffsetLocationWithAtImpl[T].context(pp))
 
   implicit object OffsetLocationPropertyAdapter
@@ -100,7 +103,7 @@ object OffsetLocation {
     var offset : Int = 0, var length : Int = 0)
       extends OffsetLocationWithAt[T] with PropertyProviderContext[T] {
     def make(pp : T) = OffsetLocationWithAtImpl[T](offset, length).context(pp)
-    def at(offset : Int, length : Int) = {
+    def at(offset : Int, length : Int) : T = {
       this.offset = offset
       this.length = length
       context
@@ -121,8 +124,9 @@ trait LineColumnLocation extends Location {
  */
 object LineColumnLocation {
   import language.implicitConversions
-  implicit def pp2lcl[T <: PropertyProvider](pp : T) : LineColumnLocationWithAt[T] =
-    pp.getPropertyOrElseUpdate(Location.locPropKey,
+  implicit def pp2lcl[T <: PropertyProvider](pp : T)(
+    implicit locPropKey : String = Location.locPropKey) : LineColumnLocationWithAt[T] =
+    pp.getPropertyOrElseUpdate(locPropKey,
       new LineColumnLocationWithAtImpl[T].context(pp))
 
   implicit object LineColumnLocationPropertyAdapter
@@ -139,7 +143,7 @@ object LineColumnLocation {
     var line : Int = 0, var column : Int = 0)
       extends LineColumnLocationWithAt[T] with PropertyProviderContext[T] {
     def make(pp : T) = LineColumnLocationWithAtImpl[T](line, column).context(pp)
-    def at(line : Int, column : Int) = {
+    def at(line : Int, column : Int) : T = {
       this.line = line
       this.column = column
       context
@@ -162,9 +166,9 @@ trait BeginEndLineColumnLocation extends Location {
  */
 object BeginEndLineColumnLocation {
   import language.implicitConversions
-  implicit def pp2belcl[T <: PropertyProvider](
-    pp : T) : BeginEndLineColumnLocationWithAt[T] =
-    pp.getPropertyOrElseUpdate(Location.locPropKey,
+  implicit def pp2belcl[T <: PropertyProvider](pp : T)(
+    implicit locPropKey : String = Location.locPropKey) : BeginEndLineColumnLocationWithAt[T] =
+    pp.getPropertyOrElseUpdate(locPropKey,
       new BeginEndLineColumnLocationWithAtImpl[T].context(pp))
 
   implicit object BeginEndLineColumnLocationPropertyAdapter
@@ -186,7 +190,7 @@ object BeginEndLineColumnLocation {
       BeginEndLineColumnLocationWithAtImpl[T](lineBegin, columnBegin, lineEnd,
         columnEnd).context(pp)
     def at(lineBegin : Int, columnBegin : Int, lineEnd : Int,
-           columnEnd : Int) = {
+           columnEnd : Int) : T = {
       this.lineBegin = lineBegin
       this.columnBegin = columnBegin
       this.lineEnd = lineEnd
@@ -199,20 +203,27 @@ object BeginEndLineColumnLocation {
 /**
  * @author <a href="mailto:robby@k-state.edu">Robby</a>
  */
+trait FileLineColumnLocation extends FileLocation with LineColumnLocation
+
+/**
+ * @author <a href="mailto:robby@k-state.edu">Robby</a>
+ */
 object FileLineColumnLocation {
   import language.implicitConversions
-  implicit def pp2flcl[T <: PropertyProvider](pp : T) : FileLineColumnLocationWithAt[T] =
-    pp.getPropertyOrElseUpdate(Location.locPropKey,
+  implicit def pp2flcl[T <: PropertyProvider](pp : T)(
+    implicit locPropKey : String = Location.locPropKey) : FileLineColumnLocationWithAt[T] =
+    pp.getPropertyOrElseUpdate(locPropKey,
       new FileLineColumnLocationWithAtImpl[T].context(pp))
 
   implicit object FileLineColumnLocationPropertyAdapter
-      extends Adapter[PropertyProvider, FileLocation with LineColumnLocation] {
-    def adapt(pp : PropertyProvider) : FileLocation with LineColumnLocation =
+      extends Adapter[PropertyProvider, FileLineColumnLocation] {
+    def adapt(pp : PropertyProvider) : FileLineColumnLocation =
       pp
   }
 
   trait FileLineColumnLocationWithAt[T <: PropertyProvider]
-      extends FileLocation.FileLocationWithAt[T]
+      extends FileLineColumnLocation
+      with FileLocation.FileLocationWithAt[T]
       with LineColumnLocation.LineColumnLocationWithAt[T] {
 
     def at(fileUri : Option[FileResourceUri], line : Int, column : Int) : T
@@ -229,7 +240,7 @@ object FileLineColumnLocation {
       if (fileUri.isDefined) at(fileUri.get, line, column)
       else at(line, column)
 
-    def at(fileUri : FileResourceUri, line : Int, column : Int) = {
+    def at(fileUri : FileResourceUri, line : Int, column : Int) : T = {
       this.fileUri = fileUri
       at(line, column)
     }
@@ -237,7 +248,7 @@ object FileLineColumnLocation {
       this.fileUri = fileUri
       context
     }
-    def at(line : Int, column : Int) = {
+    def at(line : Int, column : Int) : T = {
       this.line = line
       this.column = column
       context
@@ -248,19 +259,26 @@ object FileLineColumnLocation {
 /**
  * @author <a href="mailto:robby@k-state.edu">Robby</a>
  */
+trait SourceLocation extends FileLocation with BeginEndLineColumnLocation
+
+/**
+ * @author <a href="mailto:robby@k-state.edu">Robby</a>
+ */
 object SourceLocation {
   import language.implicitConversions
-  implicit def pp2sl[T <: PropertyProvider](pp : T) : SourceLocationWithAt[T] =
-    pp.getPropertyOrElseUpdate(Location.locPropKey,
+  implicit def pp2sl[T <: PropertyProvider](pp : T)(
+    implicit locPropKey : String = Location.locPropKey) : SourceLocationWithAt[T] =
+    pp.getPropertyOrElseUpdate(locPropKey,
       new SourceLocationWithAtImpl[T].context(pp))
 
   implicit object SourceLocationPropertyAdapter
-      extends Adapter[PropertyProvider, FileLocation with BeginEndLineColumnLocation] {
-    def adapt(pp : PropertyProvider) : FileLocation with BeginEndLineColumnLocation = pp
+      extends Adapter[PropertyProvider, SourceLocation] {
+    def adapt(pp : PropertyProvider) : SourceLocation = pp
   }
 
   trait SourceLocationWithAt[T <: PropertyProvider]
-      extends FileLocation.FileLocationWithAt[T]
+      extends SourceLocation
+      with FileLocation.FileLocationWithAt[T]
       with BeginEndLineColumnLocation.BeginEndLineColumnLocationWithAt[T] {
     def at(fileUri : Option[FileResourceUri], lineBegin : Int, columnBegin : Int,
            lineEnd : Int, columnEnd : Int) : T
@@ -276,30 +294,112 @@ object SourceLocation {
       SourceLocationWithAtImpl[T](fileUri, lineBegin, columnBegin, lineEnd,
         columnEnd).context(pp)
     def at(fileUri : Option[FileResourceUri], lineBegin : Int, columnBegin : Int,
-           lineEnd : Int, columnEnd : Int) =
+           lineEnd : Int, columnEnd : Int) : T =
       if (fileUri.isDefined)
         at(fileUri, lineBegin, columnBegin, lineEnd, columnEnd)
       else
         at(lineBegin, columnBegin, lineEnd, columnEnd)
     def at(fileUri : FileResourceUri, lineBegin : Int, columnBegin : Int,
-           lineEnd : Int, columnEnd : Int) = {
-      this.fileUri = fileUri
-      this.lineBegin = lineBegin
-      this.columnBegin = columnBegin
-      this.lineEnd = lineEnd
-      this.columnEnd = columnEnd
-      context
+           lineEnd : Int, columnEnd : Int) : T = {
+      at(fileUri)
+      at(lineBegin, columnBegin, lineEnd, columnEnd)
     }
     def at(fileUri : FileResourceUri) : T = {
       this.fileUri = fileUri
       context
     }
     def at(lineBegin : Int, columnBegin : Int, lineEnd : Int,
-           columnEnd : Int) = {
+           columnEnd : Int) : T = {
       this.lineBegin = lineBegin
       this.columnBegin = columnBegin
       this.lineEnd = lineEnd
       this.columnEnd = columnEnd
+      context
+    }
+  }
+}
+
+/**
+ * @author <a href="mailto:robby@k-state.edu">Robby</a>
+ */
+trait SourceOffsetLocation extends SourceLocation with OffsetLocation
+
+/**
+ * @author <a href="mailto:robby@k-state.edu">Robby</a>
+ */
+object SourceOffsetLocation {
+  import language.implicitConversions
+  implicit def pp2sol[T <: PropertyProvider](pp : T)(
+    implicit locPropKey : String = Location.locPropKey) : SourceOffsetLocationWithAt[T] =
+    pp.getPropertyOrElseUpdate(locPropKey,
+      new SourceOffsetLocationWithAtImpl[T].context(pp))
+
+  implicit object SourceOffsetLocationPropertyAdapter
+      extends Adapter[PropertyProvider, SourceOffsetLocation] {
+    def adapt(pp : PropertyProvider) : SourceOffsetLocation = pp
+  }
+
+  trait SourceOffsetLocationWithAt[T <: PropertyProvider]
+      extends SourceOffsetLocation
+      with SourceLocation.SourceLocationWithAt[T]
+      with OffsetLocation.OffsetLocationWithAt[T] {
+    def at(fileUri : Option[FileResourceUri], lineBegin : Int, columnBegin : Int,
+           lineEnd : Int, columnEnd : Int, offset : Int, length : Int) : T
+    def at(fileUri : FileResourceUri, lineBegin : Int, columnBegin : Int,
+           lineEnd : Int, columnEnd : Int, offset : Int, length : Int) : T
+  }
+
+  private[util] final case class SourceOffsetLocationWithAtImpl[T <: PropertyProvider](
+    var fileUri : FileResourceUri = null, var lineBegin : Int = 0,
+    var columnBegin : Int = 0, var lineEnd : Int = 0, var columnEnd : Int = 0,
+    var offset : Int = 0, var length : Int = 0)
+      extends SourceOffsetLocationWithAt[T] with PropertyProviderContext[T] {
+    def make(pp : T) =
+      SourceOffsetLocationWithAtImpl[T](fileUri, lineBegin, columnBegin, lineEnd,
+        columnEnd, offset, length).context(pp)
+    def at(fileUri : Option[FileResourceUri], lineBegin : Int, columnBegin : Int,
+           lineEnd : Int, columnEnd : Int, offset : Int, length : Int) : T =
+      if (fileUri.isDefined)
+        at(fileUri, lineBegin, columnBegin, lineEnd, columnEnd, offset, length)
+      else
+        at(lineBegin, columnBegin, lineEnd, columnEnd, offset, length)
+    def at(fileUri : FileResourceUri, lineBegin : Int, columnBegin : Int,
+           lineEnd : Int, columnEnd : Int, offset : Int, length : Int) : T = {
+      at(fileUri)
+      at(lineBegin, columnBegin, lineEnd, columnEnd)
+      at(offset, length)
+    }
+    def at(lineBegin : Int, columnBegin : Int, lineEnd : Int,
+           columnEnd : Int, offsetBegin : Int, offsetEnd : Int) : T = {
+      at(lineBegin, columnBegin, lineEnd, columnEnd)
+      at(offset, length)
+    }
+    def at(fileUri : Option[FileResourceUri], lineBegin : Int, columnBegin : Int,
+           lineEnd : Int, columnEnd : Int) : T =
+      if (fileUri.isDefined)
+        at(fileUri, lineBegin, columnBegin, lineEnd, columnEnd)
+      else
+        at(lineBegin, columnBegin, lineEnd, columnEnd)
+    def at(fileUri : FileResourceUri, lineBegin : Int, columnBegin : Int,
+           lineEnd : Int, columnEnd : Int) : T = {
+      at(fileUri)
+      at(lineBegin, columnBegin, lineEnd, columnEnd)
+    }
+    def at(fileUri : FileResourceUri) : T = {
+      this.fileUri = fileUri
+      context
+    }
+    def at(lineBegin : Int, columnBegin : Int, lineEnd : Int,
+           columnEnd : Int) : T = {
+      this.lineBegin = lineBegin
+      this.columnBegin = columnBegin
+      this.lineEnd = lineEnd
+      this.columnEnd = columnEnd
+      context
+    }
+    def at(offset : Int, length : Int) : T = {
+      this.offset = offset
+      this.length = length
       context
     }
   }
