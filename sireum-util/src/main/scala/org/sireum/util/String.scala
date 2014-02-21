@@ -10,6 +10,8 @@ package org.sireum.util
 
 import java.io.LineNumberReader
 import java.io.StringReader
+import java.io.Writer
+import org.apache.commons.lang3.StringEscapeUtils
 
 /**
  * @author <a href="mailto:robby@k-state.edu">Robby</a>
@@ -51,10 +53,55 @@ object StringUtil {
     sb.toString
   }
 
+  def insertHtml(w : Writer, s : String,
+                 offsetInserts : OffsetInsert*) {
+      def appendw(text : String) {
+        w.append(StringEscapeUtils.escapeHtml4(text))
+      }
+    insert(w, s, appendw, offsetInserts : _*)
+  }
+
+  def insert(w : Writer, s : String,
+             appendw : String => Unit,
+             offsetInserts : OffsetInsert*) {
+    val a = offsetInserts.toArray
+    scala.util.Sorting.quickSort(a)
+    val numInserts = a.length
+    var j = 0
+    var stop = false
+    for (i <- 0 until s.length if !stop)
+      if (j == numInserts) {
+        appendw(s.substring(i))
+        stop = true
+      } else {
+        var skip = false
+        while (j < numInserts && !skip) {
+          val of = a(j)
+          if (of.offset == i) {
+            w.append(of.text)
+            j += 1
+          } else skip = true
+        }
+        appendw(s.charAt(i).toString)
+      }
+  }
+
   /**
    * @author <a href="mailto:robby@k-state.edu">Robby</a>
    */
   final case class OffsetReplace(
       offsetBegin : Int, length : Int, text : String) {
+  }
+
+  /**
+   * @author <a href="mailto:robby@k-state.edu">Robby</a>
+   */
+  final case class OffsetInsert(
+    offset : Int, z : Int, text : String)
+      extends Ordered[OffsetInsert] {
+    def compare(that : OffsetInsert) =
+      if (offset < that.offset) -1
+      else if (offset == that.offset) z.compare(that.z)
+      else 1
   }
 }
