@@ -75,10 +75,10 @@ object Antlr4 {
       val lb = stop.getLine
       val cb = stop.getCharPositionInLine
       val (le, ce) = end(lb, cb, stop.getText)
-      SourceOffsetLocation.pp2sol(node)(locPropKey).at(
+      SourceOffsetLocation.At.pp2sol(node)(locPropKey).at(
         fileUri = source,
         offset = start.getStartIndex,
-        length = stop.getStopIndex - start.getStartIndex,
+        length = stop.getStopIndex - start.getStartIndex + 1,
         lineBegin = start.getLine,
         columnBegin = start.getCharPositionInLine,
         lineEnd = le,

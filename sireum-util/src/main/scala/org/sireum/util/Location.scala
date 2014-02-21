@@ -45,10 +45,17 @@ trait FileLocation extends Location {
  */
 object FileLocation {
   import language.implicitConversions
+
   implicit def pp2fl[T <: PropertyProvider](pp : T)(
-    implicit locPropKey : String = Location.locPropKey) : FileLocationWithAt[T] =
-    pp.getPropertyOrElseUpdate(locPropKey,
-      new FileLocationWithAtImpl[T].context(pp))
+    implicit locPropKey : String = Location.locPropKey) : FileLocation =
+    pp.getProperty(locPropKey)
+
+  object At {
+    implicit def pp2fl[T <: PropertyProvider](pp : T)(
+      implicit locPropKey : String = Location.locPropKey) : FileLocationWithAt[T] =
+      pp.getPropertyOrElseUpdate(locPropKey,
+        new FileLocationWithAtImpl[T].context(pp))
+  }
 
   implicit object FileLocationPropertyAdapter
       extends Adapter[PropertyProvider, FileLocation] {
@@ -84,10 +91,17 @@ trait OffsetLocation extends Location {
  */
 object OffsetLocation {
   import language.implicitConversions
+
   implicit def pp2ol[T <: PropertyProvider](pp : T)(
-    implicit locPropKey : String = Location.locPropKey) : OffsetLocationWithAt[T] =
-    pp.getPropertyOrElseUpdate(locPropKey,
-      new OffsetLocationWithAtImpl[T].context(pp))
+    implicit locPropKey : String = Location.locPropKey) : OffsetLocation =
+    pp.getProperty(locPropKey)
+
+  object At {
+    implicit def pp2ol[T <: PropertyProvider](pp : T)(
+      implicit locPropKey : String = Location.locPropKey) : OffsetLocationWithAt[T] =
+      pp.getPropertyOrElseUpdate(locPropKey,
+        new OffsetLocationWithAtImpl[T].context(pp))
+  }
 
   implicit object OffsetLocationPropertyAdapter
       extends Adapter[PropertyProvider, OffsetLocation] {
@@ -124,10 +138,17 @@ trait LineColumnLocation extends Location {
  */
 object LineColumnLocation {
   import language.implicitConversions
+
   implicit def pp2lcl[T <: PropertyProvider](pp : T)(
-    implicit locPropKey : String = Location.locPropKey) : LineColumnLocationWithAt[T] =
-    pp.getPropertyOrElseUpdate(locPropKey,
-      new LineColumnLocationWithAtImpl[T].context(pp))
+    implicit locPropKey : String = Location.locPropKey) : LineColumnLocation =
+    pp.getProperty(locPropKey)
+
+  object At {
+    implicit def pp2lcl[T <: PropertyProvider](pp : T)(
+      implicit locPropKey : String = Location.locPropKey) : LineColumnLocationWithAt[T] =
+      pp.getPropertyOrElseUpdate(locPropKey,
+        new LineColumnLocationWithAtImpl[T].context(pp))
+  }
 
   implicit object LineColumnLocationPropertyAdapter
       extends Adapter[PropertyProvider, LineColumnLocation] {
@@ -154,11 +175,15 @@ object LineColumnLocation {
 /**
  * @author <a href="mailto:robby@k-state.edu">Robby</a>
  */
-trait BeginEndLineColumnLocation extends Location {
+trait BeginEndLineColumnLocation extends LineColumnLocation {
   var lineBegin : Int
   var columnBegin : Int
   var lineEnd : Int
   var columnEnd : Int
+  def line = lineBegin
+  def column = columnBegin
+  def line_=(line : Int) = lineBegin = line
+  def column_=(column : Int) = columnBegin = column
 }
 
 /**
@@ -166,10 +191,17 @@ trait BeginEndLineColumnLocation extends Location {
  */
 object BeginEndLineColumnLocation {
   import language.implicitConversions
+
   implicit def pp2belcl[T <: PropertyProvider](pp : T)(
-    implicit locPropKey : String = Location.locPropKey) : BeginEndLineColumnLocationWithAt[T] =
-    pp.getPropertyOrElseUpdate(locPropKey,
-      new BeginEndLineColumnLocationWithAtImpl[T].context(pp))
+    implicit locPropKey : String = Location.locPropKey) : BeginEndLineColumnLocation =
+    pp.getProperty(locPropKey)
+
+  object At {
+    implicit def pp2belcl[T <: PropertyProvider](pp : T)(
+      implicit locPropKey : String = Location.locPropKey) : BeginEndLineColumnLocationWithAt[T] =
+      pp.getPropertyOrElseUpdate(locPropKey,
+        new BeginEndLineColumnLocationWithAtImpl[T].context(pp))
+  }
 
   implicit object BeginEndLineColumnLocationPropertyAdapter
       extends Adapter[PropertyProvider, BeginEndLineColumnLocation] {
@@ -210,10 +242,17 @@ trait FileLineColumnLocation extends FileLocation with LineColumnLocation
  */
 object FileLineColumnLocation {
   import language.implicitConversions
+
   implicit def pp2flcl[T <: PropertyProvider](pp : T)(
-    implicit locPropKey : String = Location.locPropKey) : FileLineColumnLocationWithAt[T] =
-    pp.getPropertyOrElseUpdate(locPropKey,
-      new FileLineColumnLocationWithAtImpl[T].context(pp))
+    implicit locPropKey : String = Location.locPropKey) : FileLineColumnLocation =
+    pp.getProperty(locPropKey)
+
+  object At {
+    implicit def pp2flcl[T <: PropertyProvider](pp : T)(
+      implicit locPropKey : String = Location.locPropKey) : FileLineColumnLocationWithAt[T] =
+      pp.getPropertyOrElseUpdate(locPropKey,
+        new FileLineColumnLocationWithAtImpl[T].context(pp))
+  }
 
   implicit object FileLineColumnLocationPropertyAdapter
       extends Adapter[PropertyProvider, FileLineColumnLocation] {
@@ -266,10 +305,17 @@ trait SourceLocation extends FileLocation with BeginEndLineColumnLocation
  */
 object SourceLocation {
   import language.implicitConversions
+
   implicit def pp2sl[T <: PropertyProvider](pp : T)(
-    implicit locPropKey : String = Location.locPropKey) : SourceLocationWithAt[T] =
-    pp.getPropertyOrElseUpdate(locPropKey,
-      new SourceLocationWithAtImpl[T].context(pp))
+    implicit locPropKey : String = Location.locPropKey) : SourceLocation =
+    pp.getProperty(locPropKey)
+
+  object At {
+    implicit def pp2sl[T <: PropertyProvider](pp : T)(
+      implicit locPropKey : String = Location.locPropKey) : SourceLocationWithAt[T] =
+      pp.getPropertyOrElseUpdate(locPropKey,
+        new SourceLocationWithAtImpl[T].context(pp))
+  }
 
   implicit object SourceLocationPropertyAdapter
       extends Adapter[PropertyProvider, SourceLocation] {
@@ -329,10 +375,17 @@ trait SourceOffsetLocation extends SourceLocation with OffsetLocation
  */
 object SourceOffsetLocation {
   import language.implicitConversions
+
   implicit def pp2sol[T <: PropertyProvider](pp : T)(
-    implicit locPropKey : String = Location.locPropKey) : SourceOffsetLocationWithAt[T] =
-    pp.getPropertyOrElseUpdate(locPropKey,
-      new SourceOffsetLocationWithAtImpl[T].context(pp))
+    implicit locPropKey : String = Location.locPropKey) : SourceOffsetLocation =
+    pp.getProperty(locPropKey)
+
+  object At {
+    implicit def pp2sol[T <: PropertyProvider](pp : T)(
+      implicit locPropKey : String = Location.locPropKey) : SourceOffsetLocationWithAt[T] =
+      pp.getPropertyOrElseUpdate(locPropKey,
+        new SourceOffsetLocationWithAtImpl[T].context(pp))
+  }
 
   implicit object SourceOffsetLocationPropertyAdapter
       extends Adapter[PropertyProvider, SourceOffsetLocation] {
@@ -370,7 +423,7 @@ object SourceOffsetLocation {
       at(offset, length)
     }
     def at(lineBegin : Int, columnBegin : Int, lineEnd : Int,
-           columnEnd : Int, offsetBegin : Int, offsetEnd : Int) : T = {
+           columnEnd : Int, offset : Int, length : Int) : T = {
       at(lineBegin, columnBegin, lineEnd, columnEnd)
       at(offset, length)
     }
