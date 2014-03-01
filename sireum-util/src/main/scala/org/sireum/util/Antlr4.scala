@@ -17,10 +17,9 @@ object Antlr4 {
 
   trait Visitor[T <: PropertyProvider] extends ParseTreeVisitor[T] {
     def getChildren[T, PT <: ParseTree](
-      trees : java.util.List[PT]) : ISeq[T] = {
+      trees : Seq[PT]) : ISeq[T] = {
       var children = ivectorEmpty[T]
       if (trees != null) {
-        import scala.collection.JavaConversions._
         for (tree <- trees)
           children :+= getChild(tree)
       }
