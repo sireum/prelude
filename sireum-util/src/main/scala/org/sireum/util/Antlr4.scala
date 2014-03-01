@@ -40,59 +40,61 @@ object Antlr4 {
     import org.sireum.util.{ Location => L }
 
     def at(ctx : ParserRuleContext, locPropKey : String = L.locPropKey)(
-      implicit source : Option[FileResourceUri]) : T = {
+      implicit source : Option[FileResourceUri], enabled : Boolean) : T = {
       val start = ctx.start
       val stop = if (ctx.stop == null) ctx.start else ctx.stop
-      at(start, stop, locPropKey)(source)
+      at(start, stop, locPropKey)(source, enabled)
     }
 
     def at(tn : org.antlr.v4.runtime.tree.TerminalNode)(
-      implicit source : Option[FileResourceUri]) : T =
-      at(tn, L.locPropKey)(source)
+      implicit source : Option[FileResourceUri], enabled : Boolean) : T =
+      at(tn, L.locPropKey)(source, enabled)
 
     def at(tn : org.antlr.v4.runtime.tree.TerminalNode,
            locPropKey : String)(
-             implicit source : Option[FileResourceUri]) : T =
-      at(tn.getSymbol, locPropKey)(source)
+             implicit source : Option[FileResourceUri], enabled : Boolean) : T =
+      at(tn.getSymbol, locPropKey)(source, enabled)
 
     def at(tnBegin : org.antlr.v4.runtime.tree.TerminalNode,
            tnEnd : org.antlr.v4.runtime.tree.TerminalNode)(
-             implicit source : Option[FileResourceUri]) : T =
-      at(tnBegin, tnEnd, L.locPropKey)(source)
+             implicit source : Option[FileResourceUri], enabled : Boolean) : T =
+      at(tnBegin, tnEnd, L.locPropKey)(source, enabled)
 
     def at(tnBegin : org.antlr.v4.runtime.tree.TerminalNode,
            tnEnd : org.antlr.v4.runtime.tree.TerminalNode,
            locPropKey : String)(
-             implicit source : Option[FileResourceUri]) : T =
-      at(tnBegin.getSymbol, tnEnd.getSymbol, locPropKey)(source)
+             implicit source : Option[FileResourceUri], enabled : Boolean) : T =
+      at(tnBegin.getSymbol, tnEnd.getSymbol, locPropKey)(source, enabled)
 
     def at(start : Token, stop : Token)(
-      implicit source : Option[FileResourceUri]) : T =
-      at(start, stop, L.locPropKey)(source)
+      implicit source : Option[FileResourceUri], enabled : Boolean) : T =
+      at(start, stop, L.locPropKey)(source, enabled)
 
     def at(start : Token, stop : Token, locPropKey : String)(
-      implicit source : Option[FileResourceUri]) : T = {
-      val lb = stop.getLine
-      val cb = stop.getCharPositionInLine
-      val (le, ce) = end(lb, cb, stop.getText)
-      SourceOffsetLocation.At.pp2sol(node)(locPropKey).at(
-        fileUri = source,
-        offset = start.getStartIndex,
-        length = stop.getStopIndex - start.getStartIndex + 1,
-        lineBegin = start.getLine,
-        columnBegin = start.getCharPositionInLine,
-        lineEnd = le,
-        columnEnd = ce)
-      node
-    }
+      implicit source : Option[FileResourceUri], enabled : Boolean) : T =
+      if (!enabled) node
+      else {
+        val lb = stop.getLine
+        val cb = stop.getCharPositionInLine
+        val (le, ce) = end(lb, cb, stop.getText)
+        SourceOffsetLocation.At.pp2sol(node)(locPropKey).at(
+          fileUri = source,
+          offset = start.getStartIndex,
+          length = stop.getStopIndex - start.getStartIndex + 1,
+          lineBegin = start.getLine,
+          columnBegin = start.getCharPositionInLine,
+          lineEnd = le,
+          columnEnd = ce)
+        node
+      }
 
     def at(t : Token)(
-      implicit source : Option[FileResourceUri]) : T =
-      at(t, t, L.locPropKey)(source)
+      implicit source : Option[FileResourceUri], enabled : Boolean) : T =
+      at(t, t, L.locPropKey)(source, enabled)
 
     def at(t : Token, locPropKey : String)(
-      implicit source : Option[FileResourceUri]) : T =
-      at(t, t, locPropKey)(source)
+      implicit source : Option[FileResourceUri], enabled : Boolean) : T =
+      at(t, t, locPropKey)(source, enabled)
 
     private def end(
       lineBegin : Int, columnBegin : Int, text : String) : (Int, Int) = {
