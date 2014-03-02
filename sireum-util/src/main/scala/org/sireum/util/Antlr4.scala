@@ -38,6 +38,33 @@ object Antlr4 {
       val node : T) extends AnyVal {
     import org.sireum.util.{ Location => L }
 
+    def at[U <: PropertyProvider](that : U) : T =
+      at(that, L.locPropKey)
+
+    def at[U <: PropertyProvider](that : U, locPropKey : String) : T =
+      if (that ? locPropKey) {
+        node.setProperty(locPropKey, that.getProperty(locPropKey))
+        node
+      } else node
+
+    def at[U <: PropertyProvider, V <: PropertyProvider](thatB : U, thatE : V) : T =
+      at(thatB, thatE, L.locPropKey)
+
+    def at[U <: PropertyProvider, V <: PropertyProvider](
+      thatB : U, thatE : V, locPropKey : String) : T =
+      if (thatB ? locPropKey && thatE ? locPropKey) {
+        import SourceOffsetLocation._
+        View.using[SourceOffsetLocation](thatB) { solB =>
+          View.using[SourceOffsetLocation](thatE) { solE =>
+            SourceOffsetLocation.At.pp2sol(node)(locPropKey).at(
+              solB.fileUri, solB.lineBegin, solB.columnBegin,
+              solE.lineEnd, solE.columnEnd, solB.offset,
+              solE.offset + solE.length - solB.offset)
+          }
+        }
+        node
+      } else node
+
     def at(ctx : ParserRuleContext, locPropKey : String = L.locPropKey)(
       implicit source : Option[FileResourceUri], enabled : Boolean) : T = {
       val start = ctx.start
