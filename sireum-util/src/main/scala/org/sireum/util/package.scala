@@ -209,9 +209,7 @@ package object util {
       case _ => it.reduce(iunion[T])
     }
 
-  val ignoringVisitorFunction : VisitorFunction = {
-    case _ => false
-  }
+  val ignoringVisitorFunction : VisitorFunction = PartialFunction.empty
 
   @inline
   def stringInternFunction(s : String) = s.intern
