@@ -46,7 +46,7 @@ package object debug {
     msg : c.Expr[Lazy[String]]) : c.Expr[Unit] = {
     import c.universe._
 
-    if (c.eval(c.Expr(c.resetAllAttrs(enableCond.tree))))
+    if (c.eval(c.Expr(c.resetLocalAttrs(enableCond.tree))))
       reify {
         if (!cond.splice)
           throw new AssertionError(

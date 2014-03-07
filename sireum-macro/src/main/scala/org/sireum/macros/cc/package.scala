@@ -36,9 +36,9 @@ package object cc {
 
   def iteImpl[T](c : scala.reflect.macros.Context)(
     cond : c.Expr[Boolean], tt : c.Expr[T], ff : c.Expr[T]) : c.Expr[T] =
-    if (c.eval(c.Expr(c.resetAllAttrs(cond.tree)))) tt else ff
+    if (c.eval(c.Expr(c.resetLocalAttrs(cond.tree)))) tt else ff
 
   def itImpl(c : scala.reflect.macros.Context)(
     cond : c.Expr[Boolean], tt : c.Expr[Unit]) : c.Expr[Unit] =
-    if (c.eval(c.Expr(c.resetAllAttrs(cond.tree)))) tt else c.universe.reify {}
+    if (c.eval(c.Expr(c.resetLocalAttrs(cond.tree)))) tt else c.universe.reify {}
 }
