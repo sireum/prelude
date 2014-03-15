@@ -53,16 +53,18 @@ object StringUtil {
     sb.toString
   }
 
-  def insertHtml(w : Writer, s : String,
+  def insertHtml(w : Writer, s : String, replace : Char --> String,
                  offsetInserts : OffsetInsert*) {
-      def appendw(text : String) {
-        w.append(StringEscapeUtils.escapeHtml4(text))
+      def appendw(c : Char) {
+        if (replace isDefinedAt c)
+          w.append(replace(c))
+        else
+          w.append(StringEscapeUtils.escapeHtml4(c.toString))
       }
     insert(w, s, appendw, offsetInserts : _*)
   }
 
-  def insert(w : Writer, s : String,
-             appendw : String => Unit,
+  def insert(w : Writer, s : String, appendw : Char => Unit,
              offsetInserts : OffsetInsert*) {
     val a = offsetInserts.toArray
     scala.util.Sorting.quickSort(a)
@@ -71,7 +73,7 @@ object StringUtil {
     var stop = false
     for (i <- 0 until s.length if !stop)
       if (j == numInserts) {
-        appendw(s.substring(i))
+        s.substring(i).foreach(appendw)
         stop = true
       } else {
         var skip = false
@@ -82,7 +84,7 @@ object StringUtil {
             j += 1
           } else skip = true
         }
-        appendw(s.charAt(i).toString)
+        appendw(s.charAt(i))
       }
   }
 
