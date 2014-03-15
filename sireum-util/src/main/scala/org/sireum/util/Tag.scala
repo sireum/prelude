@@ -53,6 +53,29 @@ object Tag {
     )
   }
 
+  def toTag(source : Option[FileResourceUri], tagLine : Int,
+            tagColumn : Int, tagOffset : Int, tagLength : Int, 
+            message : String, tagType : TagType) = {
+    LocationTag(tagType, Some(message),
+      if (source.isEmpty) {
+        new LineColumnLocation with OffsetLocation {
+          var line = tagLine
+          var column = tagColumn
+          var offset = tagOffset
+          var length = tagLength
+        }
+      } else {
+        new FileLocation with LineColumnLocation with OffsetLocation {
+          var line = tagLine
+          var column = tagColumn
+          var fileUri = source.get
+          var offset = tagOffset
+          var length = tagLength
+        }
+      }
+    )
+  }
+
   def collate(tags : Iterable[Tag]) = {
     val result = mmapEmpty[Option[FileResourceUri], MArray[Tag]]
     for (t <- tags)
