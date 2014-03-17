@@ -20,6 +20,9 @@ import java.io.InputStreamReader
  */
 object FileUtil {
 
+  def toFile(fileUri : FileResourceUri) =
+    new File(new URI(fileUri))
+  
   def fileUri(claz : Class[_], path : String) =
     toUri(new File(claz.getResource(path).toURI))
 
@@ -28,13 +31,16 @@ object FileUtil {
   def toUri(f : File) : FileResourceUri = f.getAbsoluteFile.toURI.toASCIIString
 
   def toFilePath(fileUri : FileResourceUri) =
-    new File(new URI(fileUri)).getAbsolutePath
+    toFile(fileUri).getAbsolutePath
+    
+  def filename(fileUri : FileResourceUri) =
+    toFile(fileUri).getName
 
   def listFiles(dirUri : FileResourceUri, ext : String,
                 recursive : Boolean = false,
                 result : MArray[FileResourceUri] = marrayEmpty[FileResourceUri]) //
                 : ISeq[FileResourceUri] = {
-    val dir = new File(new URI(dirUri))
+    val dir = toFile(dirUri)
     if (dir.exists)
       dir.listFiles(new FilenameFilter {
         def accept(dir : File, name : String) = name.endsWith(ext)
