@@ -342,7 +342,7 @@ object SourceLocation {
     def at(fileUri : Option[FileResourceUri], lineBegin : Int, columnBegin : Int,
            lineEnd : Int, columnEnd : Int) : T =
       if (fileUri.isDefined)
-        at(fileUri, lineBegin, columnBegin, lineEnd, columnEnd)
+        at(fileUri.get, lineBegin, columnBegin, lineEnd, columnEnd)
       else
         at(lineBegin, columnBegin, lineEnd, columnEnd)
     def at(fileUri : FileResourceUri, lineBegin : Int, columnBegin : Int,
@@ -413,7 +413,7 @@ object SourceOffsetLocation {
     def at(fileUri : Option[FileResourceUri], lineBegin : Int, columnBegin : Int,
            lineEnd : Int, columnEnd : Int, offset : Int, length : Int) : T =
       if (fileUri.isDefined)
-        at(fileUri, lineBegin, columnBegin, lineEnd, columnEnd, offset, length)
+        at(fileUri.get, lineBegin, columnBegin, lineEnd, columnEnd, offset, length)
       else
         at(lineBegin, columnBegin, lineEnd, columnEnd, offset, length)
     def at(fileUri : FileResourceUri, lineBegin : Int, columnBegin : Int,
@@ -430,7 +430,7 @@ object SourceOffsetLocation {
     def at(fileUri : Option[FileResourceUri], lineBegin : Int, columnBegin : Int,
            lineEnd : Int, columnEnd : Int) : T =
       if (fileUri.isDefined)
-        at(fileUri, lineBegin, columnBegin, lineEnd, columnEnd)
+        at(fileUri.get, lineBegin, columnBegin, lineEnd, columnEnd)
       else
         at(lineBegin, columnBegin, lineEnd, columnEnd)
     def at(fileUri : FileResourceUri, lineBegin : Int, columnBegin : Int,
