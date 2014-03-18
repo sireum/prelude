@@ -86,6 +86,13 @@ object StringUtil {
         }
         appendw(s.charAt(i))
       }
+    while (j < numInserts) {
+      val of = a(j)
+      if (of.offset == s.length) {
+        w.append(of.text)
+      }
+      j += 1
+    }
   }
 
   /**
