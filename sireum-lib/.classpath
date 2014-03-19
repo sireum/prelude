@@ -42,11 +42,16 @@
 	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/hamcrest-core.jar" sourcepath="lib/hamcrest-core-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/jettison.jar" sourcepath="lib/jettison-src.zip"/>
-	<classpathentry exported="true" kind="lib" path="lib/jgrapht.jar" sourcepath="lib/jgrapht-src.zip">
+	<classpathentry exported="true" kind="lib" path="lib/jgrapht-core.jar" sourcepath="lib/jgrapht-core-src.zip">
 		<attributes>
 			<attribute name="javadoc_location" value="http://jgrapht.org/javadoc/"/>
 		</attributes>
 	</classpathentry>
+  <classpathentry exported="true" kind="lib" path="lib/jgrapht-ext.jar" sourcepath="lib/jgrapht-ext-src.zip">
+    <attributes>
+      <attribute name="javadoc_location" value="http://jgrapht.org/javadoc/"/>
+    </attributes>
+  </classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/jsr305.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/junit.jar" sourcepath="lib/junit-src.zip">
 		<attributes>
