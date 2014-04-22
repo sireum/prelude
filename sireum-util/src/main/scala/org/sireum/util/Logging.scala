@@ -85,3 +85,9 @@ object LoggingUtil {
 trait ImplicitLogging {
   implicit lazy val logger = Logger(LoggerFactory getLogger getClass.getName)
 }
+
+trait Logging {
+  lazy val logger = Logger(LoggerFactory getLogger getClass.getName)
+}
+
+
