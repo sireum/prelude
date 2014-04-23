@@ -88,5 +88,6 @@
 	<classpathentry exported="true" kind="lib" path="elib/scala-compiler.jar" sourcepath="elib/scala-compiler-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="elib/scala-library.jar" sourcepath="elib/scala-library-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="elib/scala-reflect.jar" sourcepath="elib/scala-reflect-src.zip"/>
+  <classpathentry exported="true" kind="lib" path="elib/scala-xml.jar" sourcepath="elib/scala-xml-src.zip"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
