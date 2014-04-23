@@ -55,7 +55,7 @@ final class Exec {
       import scala.concurrent.ExecutionContext.Implicits.global
 
       try {
-        val x = Await.result(future { p.exitValue }, waitTime.millis)
+        val x = Await.result(Future { p.exitValue }, waitTime.millis)
         Exec.StringResult(sb.toString, x)
       } catch {
         case _ : TimeoutException =>
