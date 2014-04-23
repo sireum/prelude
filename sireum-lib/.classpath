@@ -58,7 +58,8 @@
 			<attribute name="javadoc_location" value="http://junit.sourceforge.net/javadoc/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib/scalalogging-slf4j.jar" sourcepath="lib/scalalogging-slf4j-src.zip"/>
+  <classpathentry exported="true" kind="lib" path="lib/scala-logging-api.jar" sourcepath="lib/scala-logging-api-src.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/scala-logging-slf4j.jar" sourcepath="lib/scala-logging-slf4j-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/scalatest.jar" sourcepath="lib/scalatest-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/slf4j-api.jar" sourcepath="lib/slf4j-api-src.zip">
 		<attributes>
