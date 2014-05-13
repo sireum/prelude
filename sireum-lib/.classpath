@@ -41,7 +41,22 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/hamcrest-core.jar" sourcepath="lib/hamcrest-core-src.zip"/>
+  <classpathentry exported="true" kind="lib" path="lib/javax.servlet-api.jar" sourcepath="lib/javax.servlet-api-src.zip">
+    <attributes>
+      <attribute name="javadoc_location" value="https://javaee-spec.java.net/nonav/javadocs/"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry exported="true" kind="lib" path="lib/javax.websocket-api.jar" sourcepath="lib/javax.websocket-api-src.zip">
+    <attributes>
+      <attribute name="javadoc_location" value="https://javaee-spec.java.net/nonav/javadocs/"/>
+    </attributes>
+  </classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/jettison.jar" sourcepath="lib/jettison-src.zip"/>
+  <classpathentry exported="true" kind="lib" path="lib/jetty.jar" sourcepath="lib/jetty-src.zip">
+    <attributes>
+      <attribute name="javadoc_location" value="http://download.eclipse.org/jetty/stable-9/apidocs/"/>
+    </attributes>
+  </classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/jgrapht-core.jar" sourcepath="lib/jgrapht-core-src.zip">
 		<attributes>
 			<attribute name="javadoc_location" value="http://jgrapht.org/javadoc/"/>
