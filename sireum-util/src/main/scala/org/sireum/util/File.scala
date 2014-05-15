@@ -28,7 +28,7 @@ object FileUtil {
 
   def toUri(path : String) : FileResourceUri = toUri(new File(path))
 
-  def toUri(f : File) : FileResourceUri = f.getAbsoluteFile.toURI.toASCIIString
+  def toUri(f : File) : FileResourceUri = f.getCanonicalFile.toURI.toASCIIString
 
   def toFilePath(fileUri : FileResourceUri) =
     toFile(fileUri).getAbsolutePath
