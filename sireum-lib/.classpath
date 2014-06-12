@@ -73,6 +73,11 @@
 			<attribute name="javadoc_location" value="http://junit.sourceforge.net/javadoc/"/>
 		</attributes>
 	</classpathentry>
+  <classpathentry exported="true" kind="lib" path="lib/mapdb.jar" sourcepath="lib/mapdb-src.zip">
+    <attributes>
+      <attribute name="javadoc_location" value="http://www.mapdb.org/apidocs/"/>
+    </attributes>
+  </classpathentry>
   <classpathentry exported="true" kind="lib" path="lib/scala-logging-api.jar" sourcepath="lib/scala-logging-api-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/scala-logging-slf4j.jar" sourcepath="lib/scala-logging-slf4j-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/scalatest.jar" sourcepath="lib/scalatest-src.zip"/>
