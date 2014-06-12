@@ -31,7 +31,7 @@ trait Database extends Closeable {
 /**
  * @author <a href="mailto:robby@k-state.edu">Robby</a>
  */
-final class DatabaseImpl(dbFile : Option[File]) extends Database {
+private final class DatabaseImpl(dbFile : Option[File]) extends Database {
   private final val OPS_THRESHOLD = 5
 
   import org.mapdb._
