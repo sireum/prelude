@@ -22,10 +22,13 @@ object Database {
  * @author <a href="mailto:robby@k-state.edu">Robby</a>
  */
 trait Database extends Closeable {
+  def dbKeys : CSet[String]
   def delete(dbKey : String)
+  def exists(dbKey : String) : Boolean
+  def keys(dbKey : String) : CSet[Any]
   def load[V <: Any](dbKey : String, key : Any) : Option[V]
-  def store[V <: Any](dbKey : String, key : Any, value : V) : Option[V]
   def remove[V <: Any](dbKey : String, key : Any) : Option[V]
+  def store[V <: Any](dbKey : String, key : Any, value : V) : Option[V]
 }
 
 /**
@@ -35,20 +38,32 @@ private final class DatabaseImpl(dbFile : Option[File]) extends Database {
   private final val OPS_THRESHOLD = 5
 
   import org.mapdb._
-  
+
   import language.implicitConversions
-  
+
   implicit def v2vopt[V](v : V) = if (v != null) Some(v) else None
 
   private val db =
     dbFile match {
-      case Some(file) => DBMaker.newFileDB(file).closeOnJvmShutdown.make
-      case _          => DBMaker.newTempFileDB.make
+      case Some(file) =>
+        DBMaker.newFileDB(file).
+          mmapFileEnable.closeOnJvmShutdown.make
+      case _ =>
+        DBMaker.newTempFileDB.mmapFileEnable.make
     }
 
   private var isLastOpStoring = false
 
   private var numOfOps = 0
+
+  def close {
+    db.close
+  }
+
+  def dbKeys : CSet[String] = {
+    import scala.collection.JavaConversions._
+    db.getAll.keySet
+  }
 
   def delete(dbKey : String) {
     db.delete(dbKey)
@@ -56,19 +71,16 @@ private final class DatabaseImpl(dbFile : Option[File]) extends Database {
     numOfOps = 0
     isLastOpStoring = false
   }
+
+  def exists(dbKey : String) : Boolean = db.exists(dbKey)
   
+  def keys(dbKey : String) : CSet[Any] = {
+    import scala.collection.JavaConversions._
+    db.getHashMap[Any, Any](dbKey).keySet
+  }
+
   def load[V <: Any](dbKey : String, key : Any) : Option[V] =
     db.getHashMap[Any, V](dbKey).get(key)
-
-  def store[V <: Any](dbKey : String, key : Any, value : V) : Option[V] = {
-    val r = db.getHashMap[Any, V](dbKey).put(key, value)
-    db.commit
-    if (!isLastOpStoring) {
-      isLastOpStoring = true
-      compact
-    }
-    r
-  }
 
   def remove[V <: Any](dbKey : String, key : Any) : Option[V] = {
     val r = db.getHashMap[Any, V](dbKey).remove(key)
@@ -80,10 +92,16 @@ private final class DatabaseImpl(dbFile : Option[File]) extends Database {
     r
   }
 
-  def close {
-    db.close
+  def store[V <: Any](dbKey : String, key : Any, value : V) : Option[V] = {
+    val r = db.getHashMap[Any, V](dbKey).put(key, value)
+    db.commit
+    if (!isLastOpStoring) {
+      isLastOpStoring = true
+      compact
+    }
+    r
   }
-
+  
   private def compact {
     numOfOps += 1
     if (numOfOps > OPS_THRESHOLD) {
@@ -91,5 +109,5 @@ private final class DatabaseImpl(dbFile : Option[File]) extends Database {
       db.compact
     }
   }
-  
+
 } 
