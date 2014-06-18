@@ -41,7 +41,7 @@ object Reflection {
     import scala.tools.reflect.ToolBox
 
     val tb = m.mkToolBox()
-    tb.typeCheck(t)
+    tb.typecheck(t)
   }
 
   def eval[T](expr : String, m : Mirror = mirror) = {
@@ -69,7 +69,7 @@ object Reflection {
     import scala.tools.reflect.ToolBox
 
     val tb = m.mkToolBox()
-    tb.typeCheck(tb.parse(expr))
+    tb.typecheck(tb.parse(expr))
   }
 
   def reify[T](expr : String, m : Mirror = mirror) : T = {
@@ -88,7 +88,7 @@ object Reflection {
     c : Class[T], processAnnotations : Boolean,
     m : Mirror = mirror) : Option[(Symbol, Any, ISeq[Annotation])] = {
     val classSymbol = m.classSymbol(c)
-    val companionSymbol = classSymbol.companionSymbol
+    val companionSymbol = classSymbol.companion
     if (companionSymbol.isModule) {
       val moduleSymbol = companionSymbol.asModule
       val moduleMirror = m.reflectModule(moduleSymbol)
@@ -107,7 +107,7 @@ object Reflection {
   def fullName(t : Type) = t.typeSymbol.fullName
 
   @inline
-  def constructor(t : Type) = t.declaration(nme.CONSTRUCTOR).asMethod
+  def constructor(t : Type) = t.decl(termNames.CONSTRUCTOR).asMethod
 
   @inline
   def getType(o : Any, m : Mirror = mirror) : Type = {
@@ -128,10 +128,10 @@ object Reflection {
                  m : Mirror = mirror) : IMap[String, Object] = {
     var result = imapEmpty[String, Object]
     for (
-      d <- (if (includeInherited) tipe.members else tipe.declarations) // 
+      d <- (if (includeInherited) tipe.members else tipe.decls) // 
       if d.isTerm && (d.asTerm.isVal || d.asTerm.isVar)
     ) {
-      val name = d.name.decoded.trim
+      val name = d.name.decodedName.toString.trim
       val im = m.reflect(obj)
       val value = im.reflectField(d.asTerm).get.asInstanceOf[Object]
       result += (name -> value)
@@ -190,14 +190,14 @@ object Reflection {
     m : Mirror = mirror) : Annotation = {
     require(a.scalaArgs.isEmpty)
 
-    val clazz = getClassOfType(a.tpe)
+    val clazz = getClassOfType(a.tree.tpe)
     var args = ivectorEmpty[AnnotationArg]
     for (arg <- a.javaArgs)
       arg match {
         case (n, a2 : scala.reflect.runtime.universe.Annotation) =>
-          args :+= AnnotationArg(n.decoded, annotation(a2))
+          args :+= AnnotationArg(n.decodedName.toString, annotation(a2))
         case (n, arg) =>
-          args :+= AnnotationArg(n.decoded, annArgument(arg, m))
+          args :+= AnnotationArg(n.decodedName.toString, annArgument(arg, m))
       }
 
     assert(classOf[java.lang.annotation.Annotation].isAssignableFrom(clazz))
@@ -272,11 +272,11 @@ object Reflection {
 
       val cMethodSym = constructor(tipe)
       var params = ivectorEmpty[Param]
-      for (p <- cMethodSym.paramss.head) {
-        val name = p.name.decoded
+      for (p <- cMethodSym.paramLists.head) {
+        val name = p.name.decodedName.toString
         val anns =
           if (processAnnotations) {
-            val fd = tipe.declaration(newTermName(name))
+            val fd = tipe.decl(TermName(name))
             fd.annotations.toVector.map(annotation(_, m))
           } else
             ivectorEmpty
