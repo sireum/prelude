@@ -14,7 +14,7 @@ import java.util.concurrent._
 /**
  * @author <a href="mailto:robby@k-state.edu">Robby</a>
  */
-final class RxBlockingQueue[E] {
+final class RxAsyncQueue[E] {
   private val queue = new LinkedBlockingQueue[Either[Object, E]]
 
   import language.implicitConversions
@@ -22,13 +22,17 @@ final class RxBlockingQueue[E] {
 
   def observe =
     Observable({ sub : Subscriber[E] =>
-      var term = false
-      while (!term && !sub.isUnsubscribed) {
-        queue.take match {
-          case Left(_)  => sub.onCompleted; term = true
-          case Right(t) => sub.onNext(t)
+      (new Thread {
+        override def run {
+          var term = false
+          while (!term && !sub.isUnsubscribed) {
+            queue.take match {
+              case Left(_) => sub.onCompleted; term = true
+              case Right(t) => sub.onNext(t)
+            }
+          }
         }
-      }
+      }).start
     })
 
   def add(e : E) = queue.add(e)
