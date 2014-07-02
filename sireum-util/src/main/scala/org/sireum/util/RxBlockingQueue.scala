@@ -20,17 +20,16 @@ final class RxBlockingQueue[E] {
   import language.implicitConversions
   private implicit def econv(e : E) = Right(e)
 
-  val observable = {
+  def observe =
     Observable({ sub : Subscriber[E] =>
       var term = false
-      while (!term) {
+      while (!term && !sub.isUnsubscribed) {
         queue.take match {
           case Left(_)  => sub.onCompleted; term = true
           case Right(t) => sub.onNext(t)
         }
       }
     })
-  }
 
   def add(e : E) = queue.add(e)
 
