@@ -116,5 +116,7 @@
 	<classpathentry exported="true" kind="lib" path="elib/scala-library.jar" sourcepath="elib/scala-library-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="elib/scala-reflect.jar" sourcepath="elib/scala-reflect-src.zip"/>
   <classpathentry exported="true" kind="lib" path="elib/scala-xml.jar" sourcepath="elib/scala-xml-src.zip"/>
+  <classpathentry exported="true" kind="lib" path="elib/config.jar" sourcepath="elib/config-src.zip"/>
+  <classpathentry exported="true" kind="lib" path="elib/akka-actor.jar" sourcepath="elib/akka-actor-src.zip"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
