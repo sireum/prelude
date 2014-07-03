@@ -37,7 +37,18 @@ import java.nio.file.StandardWatchEventKinds._
 import rx.lang.scala._
 import java.util.concurrent.TimeUnit
 
+/**
+ * @author <a href="mailto:robby@k-state.edu">Robby</a>
+ */
 object DirWatcher {
+  sealed abstract class Event {
+    def fileUri : ResourceUri
+  }
+
+  final case class Created(fileUri : ResourceUri) extends Event
+  final case class Modified(fileUri : ResourceUri) extends Event
+  final case class Deleted(fileUri : ResourceUri) extends Event
+
   def apply(p : Path, recursive : Boolean = true, timeout : Int = 1) =
     new DirWatcher(p, recursive, timeout)
 }
@@ -88,8 +99,17 @@ final class DirWatcher(base : Path, recursive : Boolean, timeout : Int) {
     walkFileTree(d, register, true)
   }
 
+  private def toEvent(kind : WatchEvent.Kind[Path], p : Path) = {
+    val uri = FileUtil.toUri(p.toFile)
+    kind match {
+      case `ENTRY_CREATE` => DirWatcher.Created(uri)
+      case `ENTRY_DELETE` => DirWatcher.Deleted(uri)
+      case `ENTRY_MODIFY` => DirWatcher.Modified(uri)
+    }
+  }
+
   val observe =
-    Observable({ sub : Subscriber[(WatchEvent.Kind[Path], Path)] =>
+    Observable({ sub : Subscriber[DirWatcher.Event] =>
       (new Thread {
         override def run {
           while (!term && !sub.isUnsubscribed) {
@@ -105,11 +125,11 @@ final class DirWatcher(base : Path, recursive : Boolean, timeout : Int) {
                       Files.isDirectory(p, LinkOption.NOFOLLOW_LINKS)) {
                       walkFileTree(p, { p =>
                         if (!sub.isUnsubscribed)
-                          sub.onNext((e.kind, p))
+                          sub.onNext(toEvent(e.kind, p))
                       }, false)
                       registerAll(p)
                     } else if (!sub.isUnsubscribed)
-                      sub.onNext((e.kind, p))
+                      sub.onNext(toEvent(e.kind, p))
                   } catch {
                     case _ : Exception =>
                   }
