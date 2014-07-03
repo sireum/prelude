@@ -41,13 +41,28 @@ import java.util.concurrent.TimeUnit
  * @author <a href="mailto:robby@k-state.edu">Robby</a>
  */
 object DirWatcher {
+  /**
+   * @author <a href="mailto:robby@k-state.edu">Robby</a>
+   */
   sealed abstract class Event {
-    def fileUri : ResourceUri
+    def base : ResourceUri
+    def uri : ResourceUri
   }
-
-  final case class Created(fileUri : ResourceUri) extends Event
-  final case class Modified(fileUri : ResourceUri) extends Event
-  final case class Deleted(fileUri : ResourceUri) extends Event
+  /**
+   * @author <a href="mailto:robby@k-state.edu">Robby</a>
+   */
+  final case class Created(
+    base : ResourceUri, uri : ResourceUri, isDirectory : Boolean) extends Event
+  /**
+   * @author <a href="mailto:robby@k-state.edu">Robby</a>
+   */
+  final case class Modified(
+    base : ResourceUri, uri : ResourceUri) extends Event
+  /**
+   * @author <a href="mailto:robby@k-state.edu">Robby</a>
+   */
+  final case class Deleted(
+    base : ResourceUri, uri : ResourceUri) extends Event
 
   def apply(p : Path, recursive : Boolean = true, timeout : Int = 1) =
     new DirWatcher(p, recursive, timeout)
@@ -62,6 +77,8 @@ final class DirWatcher(base : Path, recursive : Boolean, timeout : Int) {
   private var term = false
   val watcher = FileSystems.getDefault.newWatchService
   val keys = mmapEmpty[WatchKey, Path]
+  val baseUri = FileUtil.toUri(base.toFile)
+  val baseUriLength = baseUri.length
 
   {
     if (Files.exists(base) && Files.isDirectory(base))
@@ -100,11 +117,14 @@ final class DirWatcher(base : Path, recursive : Boolean, timeout : Int) {
   }
 
   private def toEvent(kind : WatchEvent.Kind[Path], p : Path) = {
-    val uri = FileUtil.toUri(p.toFile)
+    val f = p.toFile
+    val rawUri = FileUtil.toUri(f)
+    val lastAdj = if (rawUri.endsWith("/")) 1 else 0
+    val uri = rawUri.substring(baseUriLength, rawUri.length - lastAdj)
     kind match {
-      case `ENTRY_CREATE` => DirWatcher.Created(uri)
-      case `ENTRY_DELETE` => DirWatcher.Deleted(uri)
-      case `ENTRY_MODIFY` => DirWatcher.Modified(uri)
+      case `ENTRY_CREATE` => DirWatcher.Created(baseUri, uri, f.isDirectory)
+      case `ENTRY_DELETE` => DirWatcher.Deleted(baseUri, uri)
+      case `ENTRY_MODIFY` => DirWatcher.Modified(baseUri, uri)
     }
   }
 
