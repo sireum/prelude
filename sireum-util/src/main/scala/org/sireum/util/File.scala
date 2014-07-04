@@ -14,6 +14,8 @@ import java.io.File
 import java.io.FilenameFilter
 import java.io.LineNumberReader
 import java.io.InputStreamReader
+import java.nio.file._
+import java.nio.file.attribute._
 
 /**
  * @author <a href="mailto:robby@k-state.edu">Robby</a>
@@ -95,5 +97,20 @@ object FileUtil {
       line = lnr.readLine
     }
     (result, file.getAbsoluteFile.toURI.toASCIIString)
+  }
+  
+  def walkFileTree(d : Path, f : (Boolean, Path) => Unit, isDir : Boolean) {
+    Files.walkFileTree(d, new SimpleFileVisitor[Path] {
+      override def preVisitDirectory(
+        d : Path, attrs : BasicFileAttributes) = {
+        f(true, d)
+        FileVisitResult.CONTINUE
+      }
+      override def visitFile(
+        p : Path, attrs : BasicFileAttributes) = {
+        if (!isDir) f(false, p)
+        FileVisitResult.CONTINUE
+      }
+    })
   }
 }

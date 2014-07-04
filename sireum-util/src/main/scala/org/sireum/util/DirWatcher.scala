@@ -97,23 +97,8 @@ final class DirWatcher(base : Path, recursive : Boolean, timeout : Int) {
     keys(key) = d
   }
 
-  private def walkFileTree(d : Path, f : Path => Unit, isDir : Boolean) {
-    Files.walkFileTree(d, new SimpleFileVisitor[Path] {
-      override def preVisitDirectory(
-        d : Path, attrs : BasicFileAttributes) = {
-        f(d)
-        FileVisitResult.CONTINUE
-      }
-      override def visitFile(
-        p : Path, attrs : BasicFileAttributes) = {
-        if (!isDir) f(p)
-        FileVisitResult.CONTINUE
-      }
-    })
-  }
-
   private def registerAll(d : Path) {
-    walkFileTree(d, register, true)
+    FileUtil.walkFileTree(d, { (b, p) => register(p) }, true)
   }
 
   private def toEvent(kind : WatchEvent.Kind[Path], p : Path) = {
@@ -143,7 +128,7 @@ final class DirWatcher(base : Path, recursive : Boolean, timeout : Int) {
                   try {
                     if (recursive && (e.kind == ENTRY_CREATE) &&
                       Files.isDirectory(p, LinkOption.NOFOLLOW_LINKS)) {
-                      walkFileTree(p, { p =>
+                      FileUtil.walkFileTree(p, { (b, p) =>
                         if (!sub.isUnsubscribed)
                           sub.onNext(toEvent(e.kind, p))
                       }, false)
