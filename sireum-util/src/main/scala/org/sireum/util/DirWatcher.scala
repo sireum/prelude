@@ -63,95 +63,112 @@ object DirWatcher {
    */
   final case class Deleted(
     base : ResourceUri, uri : ResourceUri) extends Event
-
-  def apply(p : Path, recursive : Boolean = true, timeout : Int = 1) =
-    new DirWatcher(p, recursive, timeout)
 }
 
 /**
  * Adapted by <a href="mailto:robby@k-state.edu">Robby</a> from
  * Java Tutorials Code Sample – <a href="http://docs.oracle.com/javase/tutorial/displayCode.html?code=http://docs.oracle.com/javase/tutorial/essential/io/examples/WatchDir.java">WatchDir.java</a>
  */
-final class DirWatcher(base : Path, recursive : Boolean, timeout : Int) {
-  @volatile
-  private var term = false
-  val watcher = FileSystems.getDefault.newWatchService
-  val keys = mmapEmpty[WatchKey, Path]
-  val baseUri = FileUtil.toUri(base.toFile)
-  val baseUriLength = baseUri.length
+class DirWatcherGroup(timeout : Int = 1) {
+  private val watchers = marrayEmpty[Runnable]
 
-  {
+  @volatile
+  var term = false
+
+  (new Thread {
+    override def run {
+      while (!term) {
+        for (r <- watchers if !term) {
+          r.run
+        }
+          Thread.sleep(timeout * 1000l)
+      }
+    }
+  }).start
+
+  def stop {
+    term = true
+  }
+
+  def watch(base : Path, recursive : Boolean) : Observable[DirWatcher.Event] = {
+    val watcher = FileSystems.getDefault.newWatchService
+    val keys = mmapEmpty[WatchKey, Path]
+    val baseUri = FileUtil.toUri(base.toFile)
+    val baseUriLength = baseUri.length
+
+      def register(d : Path) {
+        val key =
+          if (Files.isDirectory(d))
+            d.register(watcher, ENTRY_CREATE, ENTRY_DELETE)
+          else
+            d.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY)
+        keys(key) = d
+      }
+
+      def registerAll(d : Path) {
+        FileUtil.walkFileTree(d, { (b, p) => register(p) }, true)
+      }
+
+      def toEvent(kind : WatchEvent.Kind[Path], p : Path) = {
+        val f = p.toFile
+        val rawUri = FileUtil.toUri(f)
+        val lastAdj = if (rawUri.endsWith("/")) 1 else 0
+        val uri = rawUri.substring(baseUriLength, rawUri.length - lastAdj)
+        kind match {
+          case `ENTRY_CREATE` => DirWatcher.Created(baseUri, uri, f.isDirectory)
+          case `ENTRY_DELETE` => DirWatcher.Deleted(baseUri, uri)
+          case `ENTRY_MODIFY` => DirWatcher.Modified(baseUri, uri)
+        }
+      }
+
     if (Files.exists(base) && Files.isDirectory(base))
       if (recursive)
         registerAll(base)
       else
         register(base)
-  }
 
-  private def register(d : Path) {
-    val key =
-      if (Files.isDirectory(d))
-        d.register(watcher, ENTRY_CREATE, ENTRY_DELETE)
-      else
-        d.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY)
-    keys(key) = d
-  }
-
-  private def registerAll(d : Path) {
-    FileUtil.walkFileTree(d, { (b, p) => register(p) }, true)
-  }
-
-  private def toEvent(kind : WatchEvent.Kind[Path], p : Path) = {
-    val f = p.toFile
-    val rawUri = FileUtil.toUri(f)
-    val lastAdj = if (rawUri.endsWith("/")) 1 else 0
-    val uri = rawUri.substring(baseUriLength, rawUri.length - lastAdj)
-    kind match {
-      case `ENTRY_CREATE` => DirWatcher.Created(baseUri, uri, f.isDirectory)
-      case `ENTRY_DELETE` => DirWatcher.Deleted(baseUri, uri)
-      case `ENTRY_MODIFY` => DirWatcher.Modified(baseUri, uri)
-    }
-  }
-
-  val observe =
     Observable({ sub : Subscriber[DirWatcher.Event] =>
-      (new Thread {
-        override def run {
-          while (!term && !sub.isUnsubscribed) {
-            import scala.collection.JavaConversions._
-            val key = watcher.poll(timeout, TimeUnit.SECONDS)
-            keys.get(key) match {
-              case Some(d) =>
-                for (event <- key.pollEvents if event.kind != OVERFLOW) {
-                  val e = event.asInstanceOf[WatchEvent[Path]]
-                  val p = d.resolve(e.context)
-                  try {
-                    if (recursive && (e.kind == ENTRY_CREATE) &&
-                      Files.isDirectory(p, LinkOption.NOFOLLOW_LINKS)) {
-                      FileUtil.walkFileTree(p, { (b, p) =>
-                        if (!sub.isUnsubscribed)
-                          sub.onNext(toEvent(e.kind, p))
-                      }, false)
-                      registerAll(p)
-                    } else if (!sub.isUnsubscribed)
-                      sub.onNext(toEvent(e.kind, p))
-                  } catch {
-                    case _ : Exception =>
+      watchers +=
+        new Runnable {
+          override def run {
+            if (sub.isUnsubscribed) {
+              watchers -= this
+              watcher.close
+            } else {
+              import scala.collection.JavaConversions._
+              val key = watcher.poll
+              keys.get(key) match {
+                case Some(d) =>
+                  for (event <- key.pollEvents if event.kind != OVERFLOW) {
+                    val e = event.asInstanceOf[WatchEvent[Path]]
+                    val p = d.resolve(e.context)
+                    try {
+                      if (recursive && (e.kind == ENTRY_CREATE) &&
+                        Files.isDirectory(p, LinkOption.NOFOLLOW_LINKS)) {
+                        FileUtil.walkFileTree(p, { (b, p) =>
+                          if (!sub.isUnsubscribed)
+                            sub.onNext(toEvent(e.kind, p))
+                        }, false)
+                        registerAll(p)
+                      } else if (!sub.isUnsubscribed)
+                        sub.onNext(toEvent(e.kind, p))
+                    } catch {
+                      case _ : Exception =>
+                    }
                   }
-                }
-                if (!key.reset) {
-                  keys.remove(key)
-                  if (keys.isEmpty) {
-                    term = true
-                    sub.onCompleted
+                  if (!key.reset) {
+                    keys.remove(key)
+                    if (keys.isEmpty) {
+                      watchers -= this
+                      watcher.close
+                      sub.onCompleted
+                    }
                   }
-                }
-              case _ =>
+                case _ =>
+              }
             }
           }
         }
-      }).start
     })
-
-  def stop { term = true }
+  }
 }
