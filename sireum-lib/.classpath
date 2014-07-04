@@ -99,6 +99,11 @@
 			<attribute name="javadoc_location" value="http://www.stringtemplate.org/api/"/>
 		</attributes>
 	</classpathentry>
+  <classpathentry exported="true" kind="lib" path="lib/tika-core.jar" sourcepath="lib/tika-core-src.zip">
+    <attributes>
+      <attribute name="javadoc_location" value="http://tika.apache.org/1.5/api/"/>
+    </attributes>
+  </classpathentry>
   <classpathentry exported="true" kind="lib" path="lib/upickle.jar" sourcepath="lib/upickle-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/xmlpull.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xmlunit.jar" sourcepath="lib/xmlunit-src.zip">
