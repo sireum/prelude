@@ -63,6 +63,14 @@ object DirWatcher {
    */
   final case class Deleted(
     base : ResourceUri, uri : ResourceUri) extends Event
+  /**
+   * @author <a href="mailto:robby@k-state.edu">Robby</a>
+   */
+  object EndChange extends Event {
+    def base = ""
+    def uri = ""
+    override def toString = "EndChange"
+  }
 }
 
 /**
@@ -166,6 +174,7 @@ class DirWatcherGroup(timeout : Int = 1) {
             val key = watcher.poll
             keys.get(key) match {
               case Some(d) =>
+                var count = 0
                 for (event <- key.pollEvents if event.kind != OVERFLOW) {
                   val e = event.asInstanceOf[WatchEvent[Path]]
                   val p = d.resolve(e.context)
@@ -173,12 +182,16 @@ class DirWatcherGroup(timeout : Int = 1) {
                     if (recursive && (e.kind == ENTRY_CREATE) &&
                       Files.isDirectory(p, LinkOption.NOFOLLOW_LINKS)) {
                       FileUtil.walkFileTree(p, { (b, p) =>
-                        if (!sub.isUnsubscribed)
+                        if (!sub.isUnsubscribed) {
+                          count += 1
                           sub.onNext(toEvent(e.kind, p))
+                        }
                       }, false)
                       registerAll(p)
-                    } else if (!sub.isUnsubscribed)
+                    } else if (!sub.isUnsubscribed) {
+                      count += 1
                       sub.onNext(toEvent(e.kind, p))
+                    }
                   } catch {
                     case _ : Exception =>
                   }
@@ -189,6 +202,8 @@ class DirWatcherGroup(timeout : Int = 1) {
                     stop
                   }
                 }
+                if (sub != null && !sub.isUnsubscribed && count > 0)
+                  sub.onNext(DirWatcher.EndChange)
               case _ =>
             }
           }
