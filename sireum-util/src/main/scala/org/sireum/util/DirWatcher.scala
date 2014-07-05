@@ -66,11 +66,23 @@ object DirWatcher {
 }
 
 /**
+ * @author <a href="mailto:robby@k-state.edu">Robby</a>
+ */
+trait DirWatcher {
+  def base : ResourceUri
+  def recursive : Boolean
+  def detect
+  def observe : Observable[DirWatcher.Event]
+  def stop
+}
+
+/**
  * Adapted by <a href="mailto:robby@k-state.edu">Robby</a> from
  * Java Tutorials Code Sample – <a href="http://docs.oracle.com/javase/tutorial/displayCode.html?code=http://docs.oracle.com/javase/tutorial/essential/io/examples/WatchDir.java">WatchDir.java</a>
  */
 class DirWatcherGroup(timeout : Int = 1) {
-  private val watchers = marrayEmpty[Runnable]
+  private val watchers =
+    new java.util.concurrent.ConcurrentLinkedQueue[DirWatcher]
 
   @volatile
   var term = false
@@ -78,10 +90,11 @@ class DirWatcherGroup(timeout : Int = 1) {
   (new Thread {
     override def run {
       while (!term) {
-        for (r <- watchers if !term) {
-          r.run
+        import scala.collection.JavaConversions._
+        for (w <- watchers if !term) {
+          w.detect
         }
-          Thread.sleep(timeout * 1000l)
+        Thread.sleep(timeout * 1000l)
       }
     }
   }).start
@@ -90,7 +103,7 @@ class DirWatcherGroup(timeout : Int = 1) {
     term = true
   }
 
-  def watch(base : Path, recursive : Boolean) : Observable[DirWatcher.Event] = {
+  def watch(base : Path, recursive : Boolean) : DirWatcher = {
     val watcher = FileSystems.getDefault.newWatchService
     val keys = mmapEmpty[WatchKey, Path]
     val baseUri = FileUtil.toUri(base.toFile)
@@ -127,48 +140,62 @@ class DirWatcherGroup(timeout : Int = 1) {
       else
         register(base)
 
-    Observable({ sub : Subscriber[DirWatcher.Event] =>
-      watchers +=
-        new Runnable {
-          override def run {
-            if (sub.isUnsubscribed) {
-              watchers -= this
-              watcher.close
-            } else {
-              import scala.collection.JavaConversions._
-              val key = watcher.poll
-              keys.get(key) match {
-                case Some(d) =>
-                  for (event <- key.pollEvents if event.kind != OVERFLOW) {
-                    val e = event.asInstanceOf[WatchEvent[Path]]
-                    val p = d.resolve(e.context)
-                    try {
-                      if (recursive && (e.kind == ENTRY_CREATE) &&
-                        Files.isDirectory(p, LinkOption.NOFOLLOW_LINKS)) {
-                        FileUtil.walkFileTree(p, { (b, p) =>
-                          if (!sub.isUnsubscribed)
-                            sub.onNext(toEvent(e.kind, p))
-                        }, false)
-                        registerAll(p)
-                      } else if (!sub.isUnsubscribed)
-                        sub.onNext(toEvent(e.kind, p))
-                    } catch {
-                      case _ : Exception =>
-                    }
+    val _recursive = recursive
+
+    val w = new DirWatcher {
+      private var sub : Subscriber[DirWatcher.Event] = _
+      val observe = Observable({ s : Subscriber[DirWatcher.Event] =>
+        sub = s
+      })
+      def base = baseUri
+      def recursive = _recursive
+      def stop {
+        val s = sub
+        sub = null
+        watchers.remove(this)
+        if (!s.isUnsubscribed)
+          s.onCompleted
+        watcher.close
+      }
+      def detect {
+        if (sub != null)
+          if (sub.isUnsubscribed) {
+            stop
+          } else {
+            import scala.collection.JavaConversions._
+            val key = watcher.poll
+            keys.get(key) match {
+              case Some(d) =>
+                for (event <- key.pollEvents if event.kind != OVERFLOW) {
+                  val e = event.asInstanceOf[WatchEvent[Path]]
+                  val p = d.resolve(e.context)
+                  try {
+                    if (recursive && (e.kind == ENTRY_CREATE) &&
+                      Files.isDirectory(p, LinkOption.NOFOLLOW_LINKS)) {
+                      FileUtil.walkFileTree(p, { (b, p) =>
+                        if (!sub.isUnsubscribed)
+                          sub.onNext(toEvent(e.kind, p))
+                      }, false)
+                      registerAll(p)
+                    } else if (!sub.isUnsubscribed)
+                      sub.onNext(toEvent(e.kind, p))
+                  } catch {
+                    case _ : Exception =>
                   }
-                  if (!key.reset) {
-                    keys.remove(key)
-                    if (keys.isEmpty) {
-                      watchers -= this
-                      watcher.close
-                      sub.onCompleted
-                    }
+                }
+                if (!key.reset) {
+                  keys.remove(key)
+                  if (keys.isEmpty) {
+                    stop
                   }
-                case _ =>
-              }
+                }
+              case _ =>
             }
           }
-        }
-    })
+      }
+
+    }
+    watchers.add(w)
+    w
   }
 }
