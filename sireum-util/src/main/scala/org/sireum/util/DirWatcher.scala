@@ -119,10 +119,7 @@ class DirWatcherGroup(timeout : Int = 1) {
 
       def register(d : Path) {
         val key =
-          if (Files.isDirectory(d))
-            d.register(watcher, ENTRY_CREATE, ENTRY_DELETE)
-          else
-            d.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY)
+          d.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY)
         keys(key) = d
       }
 
@@ -163,6 +160,7 @@ class DirWatcherGroup(timeout : Int = 1) {
         watchers.remove(this)
         if (!s.isUnsubscribed)
           s.onCompleted
+
         watcher.close
       }
       def detect {
@@ -189,8 +187,10 @@ class DirWatcherGroup(timeout : Int = 1) {
                       }, false)
                       registerAll(p)
                     } else if (!sub.isUnsubscribed) {
-                      count += 1
-                      sub.onNext(toEvent(e.kind, p))
+                      if (!(e.kind == ENTRY_MODIFY && Files.isDirectory(p))) {
+                        count += 1
+                        sub.onNext(toEvent(e.kind, p))
+                      }
                     }
                   } catch {
                     case _ : Exception =>
