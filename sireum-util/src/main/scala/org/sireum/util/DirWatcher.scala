@@ -88,7 +88,7 @@ trait DirWatcher {
  * Adapted by <a href="mailto:robby@k-state.edu">Robby</a> from
  * Java Tutorials Code Sample – <a href="http://docs.oracle.com/javase/tutorial/displayCode.html?code=http://docs.oracle.com/javase/tutorial/essential/io/examples/WatchDir.java">WatchDir.java</a>
  */
-class DirWatcherGroup(timeout : Int = 1) {
+class DirWatcherGroup(timeoutInMs : Long = 1000) {
   private val watchers =
     new java.util.concurrent.ConcurrentLinkedQueue[DirWatcher]
 
@@ -102,7 +102,7 @@ class DirWatcherGroup(timeout : Int = 1) {
         for (w <- watchers if !term) {
           w.detect
         }
-        Thread.sleep(timeout * 1000l)
+        Thread.sleep(timeoutInMs)
       }
     }
   }).start
