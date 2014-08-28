@@ -51,6 +51,7 @@
       <attribute name="javadoc_location" value="https://javaee-spec.java.net/nonav/javadocs/"/>
     </attributes>
   </classpathentry>
+  <classpathentry exported="true" kind="lib" path="lib/jawn-parser.jar" sourcepath="lib/jawn-parser-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/jettison.jar" sourcepath="lib/jettison-src.zip"/>
   <classpathentry exported="true" kind="lib" path="lib/jetty.jar" sourcepath="lib/jetty-src.zip">
     <attributes>
