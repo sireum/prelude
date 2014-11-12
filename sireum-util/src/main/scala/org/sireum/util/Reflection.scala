@@ -265,7 +265,11 @@ object Reflection {
       caseClassCache.getOrElseUpdate(c,
         caseClassType(getTypeOfClass(c), processAnnotations, m))
 
-    private def caseClassType(
+    def caseClassType(tipe : Type, processAnnotations : Boolean) : CaseClass = {
+      caseClassType(tipe, processAnnotations, mirror)
+    }  
+        
+    def caseClassType(
       tipe : Type, processAnnotations : Boolean, m : Mirror) : CaseClass = {
       val ts = tipe.typeSymbol
       require(ts.asClass.isCaseClass)
