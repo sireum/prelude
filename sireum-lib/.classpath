@@ -50,7 +50,6 @@
       <attribute name="javadoc_location" value="https://javaee-spec.java.net/nonav/javadocs/"/>
     </attributes>
   </classpathentry>
-  <classpathentry exported="true" kind="lib" path="lib/jawn-parser.jar" sourcepath="lib/jawn-parser-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/jettison.jar" sourcepath="lib/jettison-src.zip"/>
   <classpathentry exported="true" kind="lib" path="lib/jetty.jar" sourcepath="lib/jetty-src.zip">
     <attributes>
@@ -103,7 +102,6 @@
       <attribute name="javadoc_location" value="http://tika.apache.org/1.5/api/"/>
     </attributes>
   </classpathentry>
-  <classpathentry exported="true" kind="lib" path="lib/upickle.jar" sourcepath="lib/upickle-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/xmlpull.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xmlunit.jar" sourcepath="lib/xmlunit-src.zip">
 		<attributes>
