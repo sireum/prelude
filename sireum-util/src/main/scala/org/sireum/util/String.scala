@@ -1,9 +1,9 @@
 /*
-Copyright (c) 2011-2013 Robby, Kansas State University.        
-All rights reserved. This program and the accompanying materials      
-are made available under the terms of the Eclipse Public License v1.0 
-which accompanies this distribution, and is available at              
-http://www.eclipse.org/legal/epl-v10.html                             
+Copyright (c) 2011-2013 Robby, Kansas State University.
+All rights reserved. This program and the accompanying materials
+are made available under the terms of the Eclipse Public License v1.0
+which accompanies this distribution, and is available at
+http://www.eclipse.org/legal/epl-v10.html
 */
 
 package org.sireum.util
@@ -28,6 +28,20 @@ object StringUtil {
       line = lnr.readLine
     }
     result
+  }
+
+  def md5(s : String) : String = {
+    val md = java.security.MessageDigest.getInstance("MD5")
+    val digest = md.digest(s.getBytes)
+
+    val result = new StringBuilder
+    for (i <- 0 until digest.length) {
+      val s = Integer.toString((digest(i) & 0xff), 16)
+      if (s.length == 1) result.append('0')
+      result.append(s)
+    }
+
+    result.toString
   }
 
   def replace(s : String, offsetReplaces : OffsetReplace*) : String = {
