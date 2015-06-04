@@ -21,6 +21,17 @@ object Config {
   private var cache : IMap[String, String] = _
   private var lastModified : Long = _
 
+  def configDir : JFile = {
+    OsArchUtil.detect match {
+      case OsArch.Win32 | OsArch.Win64 =>
+        new JFile(System.getenv("APPDATA") + "/Sireum")
+      case _ =>
+        new JFile(System.getProperty("user.home") + "/.sireum")
+    }
+  }
+
+  def configDirEclipse : JFile = new JFile(configDir, "Eclipse/Configuration")
+
   def load : IMap[String, String] = synchronized {
     import scala.collection.JavaConversions._
     var result = imapEmpty[String, String]
