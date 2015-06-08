@@ -8,12 +8,8 @@ http://www.eclipse.org/legal/epl-v10.html
 
 package org.sireum.util
 
-import java.net.URL
+import java.io._
 import java.net.URI
-import java.io.File
-import java.io.FilenameFilter
-import java.io.LineNumberReader
-import java.io.InputStreamReader
 import java.nio.file._
 import java.nio.file.attribute._
 
@@ -22,30 +18,30 @@ import java.nio.file.attribute._
  */
 object FileUtil {
 
-  def toFile(fileUri : FileResourceUri) =
+  def toFile(fileUri: FileResourceUri) =
     new File(new URI(fileUri))
-  
-  def fileUri(claz : Class[_], path : String) =
+
+  def fileUri(claz: Class[_], path: String) =
     toUri(new File(claz.getResource(path).toURI))
 
-  def toUri(path : String) : FileResourceUri = toUri(new File(path))
+  def toUri(path: String): FileResourceUri = toUri(new File(path))
 
-  def toUri(f : File) : FileResourceUri = f.getCanonicalFile.toURI.toASCIIString
+  def toUri(f: File): FileResourceUri = f.getCanonicalFile.toURI.toASCIIString
 
-  def toFilePath(fileUri : FileResourceUri) =
+  def toFilePath(fileUri: FileResourceUri) =
     toFile(fileUri).getAbsolutePath
-    
-  def filename(fileUri : FileResourceUri) =
+
+  def filename(fileUri: FileResourceUri) =
     toFile(fileUri).getName
 
-  def listFiles(dirUri : FileResourceUri, ext : String,
-                recursive : Boolean = false,
-                result : MArray[FileResourceUri] = marrayEmpty[FileResourceUri]) //
-                : ISeq[FileResourceUri] = {
+  def listFiles(dirUri: FileResourceUri, ext: String,
+                recursive: Boolean = false,
+                result: MArray[FileResourceUri] = marrayEmpty[FileResourceUri]) //
+  : ISeq[FileResourceUri] = {
     val dir = toFile(dirUri)
     if (dir.exists)
       dir.listFiles(new FilenameFilter {
-        def accept(dir : File, name : String) = name.endsWith(ext)
+        def accept(dir: File, name: String) = name.endsWith(ext)
       }).foreach { f => if (f.isFile) result += toUri(f) }
     if (recursive)
       dir.listFiles.foreach { f =>
@@ -53,8 +49,8 @@ object FileUtil {
       }
     result.toList
   }
-  
-  def readFile(r : java.io.Reader) : String = {
+
+  def readFile(r: java.io.Reader): String = {
     val buffer = new Array[Char](1024)
     var n = r.read(buffer)
     val sb = new StringBuilder
@@ -65,7 +61,7 @@ object FileUtil {
     sb.toString
   }
 
-  def readFile(fileUri : FileResourceUri) : (String, FileResourceUri) = {
+  def readFile(fileUri: FileResourceUri): (String, FileResourceUri) = {
     val uri = new URI(fileUri)
     val file = new File(uri)
 
@@ -80,13 +76,13 @@ object FileUtil {
     stream.read(buffer)
     (new String(buffer), file.getAbsoluteFile.toURI.toASCIIString)
   }
-  
-  def readFileLines(fileUri : FileResourceUri) : (ISeq[String], FileResourceUri) = {
+
+  def readFileLines(fileUri: FileResourceUri): (ISeq[String], FileResourceUri) = {
     val uri = new URI(fileUri)
     val file = new File(uri)
 
     assert(file.exists)
-    
+
     val lineSep = System.lineSeparator
     val stream = uri.toURL.openStream
     val lnr = new LineNumberReader(new InputStreamReader(stream))
@@ -98,19 +94,25 @@ object FileUtil {
     }
     (result, file.getAbsoluteFile.toURI.toASCIIString)
   }
-  
-  def walkFileTree(d : Path, f : (Boolean, Path) => Unit, isDir : Boolean) {
+
+  def walkFileTree(d: Path, f: (Boolean, Path) => Unit, isDir: Boolean) {
     Files.walkFileTree(d, new SimpleFileVisitor[Path] {
       override def preVisitDirectory(
-        d : Path, attrs : BasicFileAttributes) = {
+                                      d: Path, attrs: BasicFileAttributes) = {
         f(true, d)
         FileVisitResult.CONTINUE
       }
+
       override def visitFile(
-        p : Path, attrs : BasicFileAttributes) = {
+                              p: Path, attrs: BasicFileAttributes) = {
         if (!isDir) f(false, p)
         FileVisitResult.CONTINUE
       }
     })
+  }
+
+  def writeFile(fileUri: FileResourceUri, content: String): Unit = {
+    val fw = new FileWriter(toFile(fileUri))
+    try fw.write(content) finally fw.close()
   }
 }
