@@ -30,8 +30,6 @@ object Config {
     }
   }
 
-  def configDirEclipse : JFile = new JFile(configDir, "Eclipse/Configuration")
-
   def load : IMap[String, String] = synchronized {
     import scala.collection.JavaConversions._
     var result = imapEmpty[String, String]
