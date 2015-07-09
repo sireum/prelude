@@ -111,6 +111,29 @@ object FileUtil {
     })
   }
 
+  def delete(d: Path): Boolean = {
+    var ok = true
+    Files.walkFileTree(d, new SimpleFileVisitor[Path] {
+      override def postVisitDirectory(d: Path,
+                                      exc: IOException) =
+        delete(d)
+
+      override def visitFile(p: Path,
+                             attrs: BasicFileAttributes) =
+        delete(p)
+
+      override def visitFileFailed(p: Path, exc: IOException) =
+        delete(p)
+
+      private def delete(p: Path) = {
+        ok = ok && Files.deleteIfExists(p)
+        if (ok) FileVisitResult.CONTINUE
+        else FileVisitResult.TERMINATE
+      }
+    })
+    ok
+  }
+
   def writeFile(fileUri: FileResourceUri, content: String): Unit = {
     val fw = new FileWriter(toFile(fileUri))
     try fw.write(content) finally fw.close()
