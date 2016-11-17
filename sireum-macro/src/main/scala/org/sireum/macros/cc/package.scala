@@ -26,19 +26,19 @@ package object cc {
     
   def ite[T](cond : Boolean, tt : T, ff : T) = macro iteImpl[T]
   
-  def iteInternalImpl[T](c : scala.reflect.macros.Context)(
+  def iteInternalImpl[T](c : scala.reflect.macros.blackbox.Context)(
     tt : c.Expr[T], ff : c.Expr[T]) : c.Expr[T] =
     if (INTERNAL) tt else ff
 
-  def itInternalImpl(c : scala.reflect.macros.Context)(
+  def itInternalImpl(c : scala.reflect.macros.blackbox.Context)(
       tt : c.Expr[Unit]) : c.Expr[Unit] =
     if (INTERNAL) tt else c.universe.reify {}
 
-  def iteImpl[T](c : scala.reflect.macros.Context)(
+  def iteImpl[T](c : scala.reflect.macros.blackbox.Context)(
     cond : c.Expr[Boolean], tt : c.Expr[T], ff : c.Expr[T]) : c.Expr[T] =
-    if (c.eval(c.Expr(c.resetLocalAttrs(cond.tree)))) tt else ff
+    if (c.eval(c.Expr(c.untypecheck(cond.tree)))) tt else ff
 
-  def itImpl(c : scala.reflect.macros.Context)(
+  def itImpl(c : scala.reflect.macros.blackbox.Context)(
     cond : c.Expr[Boolean], tt : c.Expr[Unit]) : c.Expr[Unit] =
-    if (c.eval(c.Expr(c.resetLocalAttrs(cond.tree)))) tt else c.universe.reify {}
+    if (c.eval(c.Expr(c.untypecheck(cond.tree)))) tt else c.universe.reify {}
 }

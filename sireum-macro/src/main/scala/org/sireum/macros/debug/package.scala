@@ -27,7 +27,7 @@ package object debug {
     cond : Boolean,
     msg : Lazy[String]) : Unit = macro assertImpl
 
-  def assertDebugImpl(c : scala.reflect.macros.Context)(
+  def assertDebugImpl(c : scala.reflect.macros.blackbox.Context)(
     cond : c.Expr[Boolean], msg : c.Expr[Lazy[String]]) : c.Expr[Unit] = {
     import c.universe._
 
@@ -41,12 +41,12 @@ package object debug {
       reify {}
   }
 
-  def assertImpl(c : scala.reflect.macros.Context)(
+  def assertImpl(c : scala.reflect.macros.blackbox.Context)(
     enableCond : c.Expr[Boolean], cond : c.Expr[Boolean],
     msg : c.Expr[Lazy[String]]) : c.Expr[Unit] = {
     import c.universe._
 
-    if (c.eval(c.Expr(c.resetLocalAttrs(enableCond.tree))))
+    if (c.eval(c.Expr(c.untypecheck(enableCond.tree))))
       reify {
         if (!cond.splice)
           throw new AssertionError(
